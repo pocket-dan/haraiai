@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -170,12 +171,14 @@ func createPayAmountResultMessage(members []store.User) string {
 	return strings.Join(lines, "\n")
 }
 
-// TODO: rewrite to generics method and move to common package
 func mapToList(m map[string]store.User) []store.User {
-	l := make([]store.User, 0, len(m))
+	// TODO: rewrite to generics method and move to common package
+
+	v := make([]store.User, 0, len(m))
 	for _, e := range m {
-		l = append(l, e)
+		v = append(v, e)
 	}
 
-	return l
+	sort.Slice(v, func(i, j int) bool { return v[i].Name < v[j].Name })
+	return v
 }
