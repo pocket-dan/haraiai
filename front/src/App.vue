@@ -14,7 +14,7 @@ html, body {
 }
 
 #app {
-  font-family: ZenmaruGothic-Regular, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Zen Maru Gothic', Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
