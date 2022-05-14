@@ -2,8 +2,8 @@ name: Deploy
 
 on:
   push:
-  pull_request:
-    types: [opened, synchronize]
+    branches:
+      - main
 
 defaults:
   run:

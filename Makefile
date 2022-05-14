@@ -26,9 +26,11 @@ ci-test: prepare build generate
 develop:
 	PHASE=local go run tool/develop/main.go
 
+develop-fe:
+	cd front && npm run dev
+
 deploy: build
 	cd deploy && terraform apply
-	cd front && npm run build && firebase deploy
 
 ngrok:
 	ngrok http 8080
