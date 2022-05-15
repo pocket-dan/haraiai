@@ -11,6 +11,119 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var (
+	REPLY_TOKEN string = "replyToken1"
+
+	SENDER_ID string = "uid1"
+	GROUP_ID  string = "gid1"
+)
+
+func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	b := mock.NewMockBotClient(ctrl)
+	s := mock.NewMockStore(ctrl)
+	target := BotHandlerImpl{
+		bot:   b,
+		store: s,
+	}
+
+	group := store.NewGroup(
+		GROUP_ID,
+		store.GROUP_CREATED,
+		[]store.User{},
+	)
+
+	// Expect to reply text message.
+	expectedMessage := "わり夫さんだね！👍"
+	b.
+		EXPECT().
+		ReplyMessage(REPLY_TOKEN, gomock.Any()).
+		Times(1).
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Len(t, messages, 1)
+			assert.Equal(t, linebot.NewTextMessage(expectedMessage), messages[0])
+		})
+
+	// Expect to save new group.
+	s.
+		EXPECT().
+		SaveGroup(gomock.Any()).
+		Times(1).
+		Do(func(newGroup *store.Group) {
+			assert.Equal(t, GROUP_ID, newGroup.ID)
+			assert.Equal(t, store.GROUP_CREATED, newGroup.Status)
+			assert.Len(t, newGroup.Members, 1)
+
+			newUser, exists := newGroup.Members[SENDER_ID]
+			assert.True(t, exists)
+			assert.Equal(t, SENDER_ID, newUser.ID)
+			assert.Equal(t, "わり夫", newUser.Name)
+			assert.Equal(t, int64(0), newUser.PayAmount)
+		})
+
+		// Test handler.handleTextMessage call.
+	event := newTestMessageEvent(REPLY_TOKEN, linebot.EventSourceTypeGroup, GROUP_ID, SENDER_ID)
+	err := target.addNewMember(event, group, "わり夫だよ")
+
+	assert.Nil(t, err)
+}
+
+func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	b := mock.NewMockBotClient(ctrl)
+	s := mock.NewMockStore(ctrl)
+	target := BotHandlerImpl{
+		bot:   b,
+		store: s,
+	}
+
+	firstPerson := store.NewUser("uidx", "わり夫", int64(0))
+	group := store.NewGroup(
+		GROUP_ID,
+		store.GROUP_CREATED,
+		[]store.User{*firstPerson},
+	)
+
+	// Expect to reply text message.
+	expectedMessage := "わり子さんだね！👍"
+	b.
+		EXPECT().
+		ReplyMessage(REPLY_TOKEN, gomock.Any()).
+		Times(1).
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Len(t, messages, 2)
+			assert.Equal(t, linebot.NewTextMessage(expectedMessage), messages[0])
+			assert.Equal(t, READY_TO_START_MESSAGES[0], messages[1])
+		})
+
+	// Expect to save new group.
+	s.
+		EXPECT().
+		SaveGroup(gomock.Any()).
+		Times(1).
+		Do(func(newGroup *store.Group) {
+			assert.Equal(t, GROUP_ID, newGroup.ID)
+			assert.Equal(t, store.GROUP_STARTED, newGroup.Status)
+			assert.Len(t, newGroup.Members, 2)
+
+			newUser, exists := newGroup.Members[SENDER_ID]
+			assert.True(t, exists)
+			assert.Equal(t, SENDER_ID, newUser.ID)
+			assert.Equal(t, "わり子", newUser.Name)
+			assert.Equal(t, int64(0), newUser.PayAmount)
+		})
+
+		// Test handler.handleTextMessage call.
+	event := newTestMessageEvent(REPLY_TOKEN, linebot.EventSourceTypeGroup, GROUP_ID, SENDER_ID)
+	err := target.addNewMember(event, group, "わり子だよ")
+
+	assert.Nil(t, err)
+}
+
 func TestHandleTextMessage_totalUp_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -23,14 +136,14 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 	}
 
 	replyToken := "replyToken"
-	group := &store.Group{
-		ID:     "group ID",
-		Status: store.STARTED,
-		Members: map[string]store.User{
-			"uid1": store.User{ID: "uid1", Name: "わり夫", PayAmount: 1000},
-			"uid2": store.User{ID: "uid2", Name: "わり子", PayAmount: 5000},
+	group := store.NewGroup(
+		"group ID",
+		store.GROUP_STARTED,
+		[]store.User{
+			store.User{ID: "uid1", Name: "わり夫", PayAmount: 1000},
+			store.User{ID: "uid2", Name: "わり子", PayAmount: 5000},
 		},
-	}
+	)
 
 	s.
 		EXPECT().
@@ -41,13 +154,13 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 	expectedMessage := "支払った総額は...\nわり夫: 1000円\nわり子: 5000円\n\nわり子さんが2000円多く払っているよ！"
 	b.
 		EXPECT().
-		ReplyTextMessage(replyToken, gomock.Any()).
+		ReplyMessage(replyToken, gomock.Any()).
 		Times(1).
-		Do(func(_, message string) {
-			assert.Equal(t, expectedMessage, message)
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Equal(t, linebot.NewTextMessage(expectedMessage), messages[0])
 		})
 
-	event := newTestMessageEvent(replyToken, linebot.EventSourceTypeGroup, group.ID, "uid1")
+	event := newTestMessageEvent(replyToken, linebot.EventSourceTypeGroup, group.ID, SENDER_ID)
 	message := newTextMessage("集計")
 	err := target.handleTextMessage(event, message)
 
@@ -68,13 +181,14 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 	replyToken := "replyToken"
 	warioID := "uid1"
 	warikoID := "uid2"
-	group := &store.Group{
-		ID: "group ID",
-		Members: map[string]store.User{
-			warioID:  store.User{ID: warioID, Name: "わり夫", PayAmount: 1000},
-			warikoID: store.User{ID: warikoID, Name: "わり子", PayAmount: 5000},
+	group := store.NewGroup(
+		"group ID",
+		store.GROUP_STARTED,
+		[]store.User{
+			store.User{ID: warioID, Name: "わり夫", PayAmount: 1000},
+			store.User{ID: warikoID, Name: "わり子", PayAmount: 5000},
 		},
-	}
+	)
 
 	s.
 		EXPECT().
@@ -100,8 +214,12 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 	expectedMessage := "👍"
 	b.
 		EXPECT().
-		ReplyTextMessage(replyToken, expectedMessage).
-		Times(1)
+		ReplyMessage(replyToken, gomock.Any()).
+		Times(1).
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Len(t, messages, 1)
+			assert.Equal(t, linebot.NewTextMessage(expectedMessage), messages[0])
+		})
 
 	event := newTestMessageEvent(replyToken, linebot.EventSourceTypeGroup, group.ID, warioID)
 	message := newTextMessage("スタバ\n1000円")

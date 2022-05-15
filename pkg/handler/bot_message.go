@@ -12,12 +12,65 @@ import (
 )
 
 const (
-	TOTAL_UP_TEXT   = "集計"
-	TOTAL_UP_PREFIX = "支払った総額は..."
+	JOIN_MESSAGE_SUFFIX = "だよ"
 
-	JOIN_SUFFIX = "だよ"
+	START_TUTORIAL_MESSAGE          = "使い方を教えて"
+	TUTORIAL_PAYMENT_MESSAGE        = "例: お昼ごはん代\n3000"
+	TUTORIAL_PAYMENT_CANCEL_MESSAGE = "例: お昼ごはん代（取消）\n-3000"
 
-	START_MESSAGE = "2人の名前を登録できたよ、ありがとう！\n是非試しに「集計」と言ってみてね。"
+	TOTAL_UP_MESSAGE = "集計"
+	TOTAL_UP_PREFIX  = "支払った総額は..."
+)
+
+var (
+	READY_TO_START_MESSAGES = []linebot.SendingMessage{
+		linebot.NewTextMessage("2人の名前を登録したよ、ありがとう！割り勘をはじめられるよ。").
+			WithQuickReplies(linebot.NewQuickReplyItems(
+				linebot.NewQuickReplyButton(
+					"",
+					linebot.NewMessageAction("使い方を聞きたい場合はタップ", START_TUTORIAL_MESSAGE),
+				),
+			)),
+	}
+
+	TUTORIAL_REPLYS_1 = []linebot.SendingMessage{
+		linebot.NewTextMessage("使い方を説明するよ！\n" +
+			"割り勘したいときは、まとめて支払った人が「タイトル」と「金額」の2行のメッセージを送ってね！"),
+		linebot.NewTextMessage(TUTORIAL_PAYMENT_MESSAGE).
+			WithQuickReplies(linebot.NewQuickReplyItems(
+				linebot.NewQuickReplyButton(
+					"",
+					linebot.NewMessageAction("例のメッセージを送ってみる", TUTORIAL_PAYMENT_MESSAGE),
+				),
+			)),
+	}
+
+	TUTORIAL_REPLYS_2 = []linebot.SendingMessage{
+		linebot.NewTextMessage("支払い状況を確認したい場合は「集計」とメッセージを送ってみてね。").
+			WithQuickReplies(linebot.NewQuickReplyItems(
+				linebot.NewQuickReplyButton(
+					"",
+					linebot.NewMessageAction("集計 と送る", TOTAL_UP_MESSAGE),
+				),
+			)),
+	}
+
+	TUTORIAL_REPLYS_3 = []linebot.SendingMessage{
+		linebot.NewTextMessage("いいね👍\nもし過去の支払いを取り消したい場合は、素朴にマイナスで打ち消ししてね。"),
+		linebot.NewTextMessage(TUTORIAL_PAYMENT_CANCEL_MESSAGE).
+			WithQuickReplies(linebot.NewQuickReplyItems(
+				linebot.NewQuickReplyButton(
+					"",
+					linebot.NewMessageAction("取り消しの例のメッセージを送る", TUTORIAL_PAYMENT_CANCEL_MESSAGE),
+				),
+			)),
+	}
+
+	TUTORIAL_REPLYS_4 = []linebot.SendingMessage{
+		linebot.NewTextMessage("お疲れさまでした！使い方の説明はおしまいです！😄"),
+		linebot.NewTextMessage("疑問がある場合は「ヘルプ」"),
+		// linebot.NewTextMessage("最後に haraiai には支払いを精算してリセットする機能はないよ。定期的な精算をするよりも、支払いが少ない側が次回多めに払うことで支払い額のバランスを保つようにしよう！"),
+	}
 )
 
 func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *linebot.TextMessage) error {
@@ -31,17 +84,29 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 		return err
 	}
 
-	if group.Status == store.CREATED {
-		if strings.HasSuffix(message.Text, JOIN_SUFFIX) {
+	if group.Status == store.GROUP_CREATED {
+		if strings.HasSuffix(message.Text, JOIN_MESSAGE_SUFFIX) {
 			if err := bh.addNewMember(event, group, message.Text); err != nil {
 				return err
 			}
 			return nil
 		}
 	} else {
+		if message.Text == START_TUTORIAL_MESSAGE {
+			group.IsTutorial = true
+			if err := bh.store.SaveGroup(group); err != nil {
+				return err
+			}
+
+			if err := bh.bot.ReplyMessage(event.ReplyToken, TUTORIAL_REPLYS_1...); err != nil {
+				return err
+			}
+			return nil
+		}
+
 		// Total up payment amount for each member.
-		if message.Text == TOTAL_UP_TEXT {
-			if err := bh.totalUpPayments(event, group); err != nil {
+		if message.Text == TOTAL_UP_MESSAGE {
+			if err := bh.replyTotalUpResult(event, group); err != nil {
 				return err
 			}
 			return nil
@@ -50,6 +115,10 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 		// Save a new payment if it's valid message.
 		if payAmount, err := extractPayAmount(message.Text); err == nil {
 			if err := bh.addNewPayment(event, group, payAmount); err != nil {
+				return err
+			}
+
+			if err := bh.replyToNewPayment(event, message.Text); err != nil {
 				return err
 			}
 			return nil
@@ -62,7 +131,7 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 func (bh *BotHandlerImpl) addNewMember(event *linebot.Event, group *store.Group, text string) error {
 	// FIXME: Need to consider multiple users are added to the group simultaneously.
 
-	memberName := strings.TrimSuffix(text, JOIN_SUFFIX)
+	memberName := strings.TrimSuffix(text, JOIN_MESSAGE_SUFFIX)
 	memberName = strings.Trim(memberName, " \n")
 
 	senderID := event.Source.UserID
@@ -72,7 +141,7 @@ func (bh *BotHandlerImpl) addNewMember(event *linebot.Event, group *store.Group,
 	}
 
 	if len(group.Members) == 2 {
-		group.Status = store.STARTED
+		group.Status = store.GROUP_STARTED
 	}
 
 	err := bh.store.SaveGroup(group)
@@ -80,21 +149,42 @@ func (bh *BotHandlerImpl) addNewMember(event *linebot.Event, group *store.Group,
 		return err
 	}
 
-	replyTexts := []string{memberName + "さんだね！👍"}
-	if len(group.Members) == 2 {
-		replyTexts = append(replyTexts, START_MESSAGE)
+	replyMessages := []linebot.SendingMessage{
+		linebot.NewTextMessage(memberName + "さんだね！👍"),
 	}
 
-	if err = bh.bot.ReplyTextMessage(event.ReplyToken, replyTexts...); err != nil {
+	if len(group.Members) == 2 {
+		replyMessages = append(replyMessages, READY_TO_START_MESSAGES...)
+	}
+
+	if err = bh.bot.ReplyMessage(event.ReplyToken, replyMessages...); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (bh *BotHandlerImpl) totalUpPayments(event *linebot.Event, group *store.Group) error {
-	replyText := createPayAmountResultMessage(mapToList(group.Members))
-	if err := bh.bot.ReplyTextMessage(event.ReplyToken, replyText); err != nil {
+func (bh *BotHandlerImpl) replyTotalUpResult(
+	event *linebot.Event,
+	group *store.Group,
+) error {
+	replyMessages := []linebot.SendingMessage{}
+
+	replyMessages = append(replyMessages, linebot.NewTextMessage(
+		createPayAmountResultMessage(mapToList(group.Members)),
+	))
+
+	if group.IsTutorial {
+		group.IsTutorial = false
+		err := bh.store.SaveGroup(group)
+		if err != nil {
+			return err
+		}
+
+		replyMessages = append(replyMessages, TUTORIAL_REPLYS_3...)
+	}
+
+	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessages...); err != nil {
 		return err
 	}
 
@@ -116,8 +206,22 @@ func (bh *BotHandlerImpl) addNewPayment(event *linebot.Event, group *store.Group
 		return fmt.Errorf("failed to update group: %w", err)
 	}
 
-	replyText := "👍"
-	if err := bh.bot.ReplyTextMessage(event.ReplyToken, replyText); err != nil {
+	return nil
+}
+
+func (bh *BotHandlerImpl) replyToNewPayment(event *linebot.Event, text string) error {
+	replyMessages := []linebot.SendingMessage{
+		linebot.NewTextMessage("👍"),
+	}
+
+	// For tutorial.
+	if text == TUTORIAL_PAYMENT_MESSAGE {
+		replyMessages = append(replyMessages, TUTORIAL_REPLYS_2...)
+	} else if text == TUTORIAL_PAYMENT_CANCEL_MESSAGE {
+		replyMessages = append(replyMessages, TUTORIAL_REPLYS_4...)
+	}
+
+	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessages...); err != nil {
 		return err
 	}
 

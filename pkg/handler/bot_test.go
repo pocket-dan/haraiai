@@ -106,37 +106,3 @@ func newTestEvent(eventType linebot.EventType) *linebot.Event {
 		},
 	}
 }
-
-// type Event struct {
-// 	ReplyToken        string
-// 	Type              EventType
-// 	Mode              EventMode
-// 	Timestamp         time.Time
-// 	Source            *EventSource
-// 	Message           Message
-// 	Joined            *Members
-// 	Left              *Members
-// 	Postback          *Postback
-// 	Beacon            *Beacon
-// 	AccountLink       *AccountLink
-// 	Things            *Things
-// 	Members           []*EventSource
-// 	Unsend            *Unsend
-// 	VideoPlayComplete *VideoPlayComplete
-// 	WebhookEventID    string
-// 	DeliveryContext   DeliveryContext
-// }
-
-// EventTypeMessage           EventType = "message"
-// EventTypeFollow            EventType = "follow"
-// EventTypeUnfollow          EventType = "unfollow"
-// EventTypeJoin              EventType = "join"
-// EventTypeLeave             EventType = "leave"
-// EventTypeMemberJoined      EventType = "memberJoined"
-// EventTypeMemberLeft        EventType = "memberLeft"
-// EventTypePostback          EventType = "postback"
-// EventTypeBeacon            EventType = "beacon"
-// EventTypeAccountLink       EventType = "accountLink"
-// EventTypeThings            EventType = "things"
-// EventTypeUnsend            EventType = "unsend"
-// EventTypeVideoPlayComplete EventType = "videoPlayComplete"
