@@ -11,11 +11,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	REPLY_TOKEN string = "replyToken1"
+const (
+	REPLY_TOKEN string = "replyToken"
 
 	SENDER_ID string = "uid1"
 	GROUP_ID  string = "gid1"
+
+	WARIO_ID  string = "wario ID"
+	WARIKO_ID string = "wariko ID"
 )
 
 func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
@@ -135,13 +138,12 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 		store: s,
 	}
 
-	replyToken := "replyToken"
 	group := store.NewGroup(
-		"group ID",
+		GROUP_ID,
 		store.GROUP_STARTED,
 		[]store.User{
-			store.User{ID: "uid1", Name: "わり夫", PayAmount: 1000},
-			store.User{ID: "uid2", Name: "わり子", PayAmount: 5000},
+			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
+			{ID: WARIKO_ID, Name: "わり子", PayAmount: 5000},
 		},
 	)
 
@@ -151,16 +153,21 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 		Return(group, nil).
 		Times(1)
 
-	expectedMessage := "支払った総額は...\nわり夫: 1000円\nわり子: 5000円\n\nわり子さんが2000円多く払っているよ！"
+	expectedMessage := "支払った総額は...\nわり夫: 1000円\nわり子: 5000円\n\nわり夫 は今度 4000 円分支払うと追いつくよ🙌"
 	b.
 		EXPECT().
-		ReplyMessage(replyToken, gomock.Any()).
+		ReplyMessage(REPLY_TOKEN, gomock.Any()).
 		Times(1).
 		Do(func(_ string, messages ...linebot.SendingMessage) {
 			assert.Equal(t, linebot.NewTextMessage(expectedMessage), messages[0])
 		})
 
-	event := newTestMessageEvent(replyToken, linebot.EventSourceTypeGroup, group.ID, SENDER_ID)
+	event := newTestMessageEvent(
+		REPLY_TOKEN,
+		linebot.EventSourceTypeGroup,
+		group.ID,
+		SENDER_ID,
+	)
 	message := newTextMessage("集計")
 	err := target.handleTextMessage(event, message)
 
@@ -178,15 +185,12 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 		store: s,
 	}
 
-	replyToken := "replyToken"
-	warioID := "uid1"
-	warikoID := "uid2"
 	group := store.NewGroup(
-		"group ID",
+		GROUP_ID,
 		store.GROUP_STARTED,
 		[]store.User{
-			store.User{ID: warioID, Name: "わり夫", PayAmount: 1000},
-			store.User{ID: warikoID, Name: "わり子", PayAmount: 5000},
+			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
+			{ID: WARIKO_ID, Name: "わり子", PayAmount: 5000},
 		},
 	)
 
@@ -204,25 +208,199 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 
 			assert.Len(t, newGroup.Members, 2)
 
-			expectedWario := store.User{ID: warioID, Name: "わり夫", PayAmount: 2000}
-			assert.Equal(t, expectedWario, newGroup.Members[warioID])
+			expectedWario := store.User{ID: WARIO_ID, Name: "わり夫", PayAmount: 2000}
+			assert.Equal(t, expectedWario, newGroup.Members[WARIO_ID])
 
-			assert.Equal(t, group.Members[warikoID], newGroup.Members[warikoID])
+			assert.Equal(t, group.Members[WARIKO_ID], newGroup.Members[WARIKO_ID])
 		}).
 		Times(1)
 
 	expectedMessage := "👍"
 	b.
 		EXPECT().
-		ReplyMessage(replyToken, gomock.Any()).
+		ReplyMessage(REPLY_TOKEN, gomock.Any()).
 		Times(1).
 		Do(func(_ string, messages ...linebot.SendingMessage) {
 			assert.Len(t, messages, 1)
 			assert.Equal(t, linebot.NewTextMessage(expectedMessage), messages[0])
 		})
 
-	event := newTestMessageEvent(replyToken, linebot.EventSourceTypeGroup, group.ID, warioID)
+	event := newTestMessageEvent(
+		REPLY_TOKEN,
+		linebot.EventSourceTypeGroup,
+		group.ID,
+		WARIO_ID,
+	)
 	message := newTextMessage("スタバ\n1000円")
+	err := target.handleTextMessage(event, message)
+
+	assert.Nil(t, err)
+}
+
+func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	b := mock.NewMockBotClient(ctrl)
+	s := mock.NewMockStore(ctrl)
+	target := BotHandlerImpl{
+		bot:   b,
+		store: s,
+	}
+
+	group := store.NewGroup(
+		GROUP_ID,
+		store.GROUP_STARTED,
+		[]store.User{
+			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
+			{ID: WARIKO_ID, Name: "わり子", PayAmount: 5000},
+		},
+	)
+
+	// Mock and check GetGroup method call.
+	s.
+		EXPECT().
+		GetGroup(group.ID).
+		Return(group, nil).
+		Times(1)
+
+		// Check reply message.
+	expectedMessage := linebot.NewTextMessage(
+		"わり夫 は わり子 に 2000 円払うと精算完了です。精算しましたか？",
+	).WithQuickReplies(
+		linebot.NewQuickReplyItems(
+			linebot.NewQuickReplyButton(
+				"",
+				linebot.NewMessageAction("はい", EVEN_UP_COMPLETE_MESSAGE),
+			),
+		),
+	)
+
+	b.
+		EXPECT().
+		ReplyMessage(REPLY_TOKEN, gomock.Any()).
+		Times(1).
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Len(t, messages, 1)
+			assert.Equal(t, expectedMessage, messages[0])
+		})
+
+	event := newTestMessageEvent(
+		REPLY_TOKEN,
+		linebot.EventSourceTypeGroup,
+		group.ID,
+		WARIO_ID,
+	)
+	message := newTextMessage("精算")
+	err := target.handleTextMessage(event, message)
+
+	assert.Nil(t, err)
+}
+
+func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	b := mock.NewMockBotClient(ctrl)
+	s := mock.NewMockStore(ctrl)
+	target := BotHandlerImpl{bot: b, store: s}
+
+	group := store.NewGroup(
+		GROUP_ID,
+		store.GROUP_STARTED,
+		[]store.User{
+			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
+			{ID: WARIKO_ID, Name: "わり子", PayAmount: 1000},
+		},
+	)
+
+	// Mock and check GetGroup method call.
+	s.
+		EXPECT().
+		GetGroup(group.ID).
+		Return(group, nil).
+		Times(1)
+
+		// Check reply message.
+	expectedMessage := linebot.NewTextMessage("払った額は同じ！精算の必要はないよ。")
+	b.
+		EXPECT().
+		ReplyMessage(REPLY_TOKEN, gomock.Any()).
+		Times(1).
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Len(t, messages, 1)
+			assert.Equal(t, expectedMessage, messages[0])
+		})
+
+	event := newTestMessageEvent(
+		REPLY_TOKEN,
+		linebot.EventSourceTypeGroup,
+		group.ID,
+		WARIO_ID,
+	)
+	message := newTextMessage("精算")
+	err := target.handleTextMessage(event, message)
+
+	assert.Nil(t, err)
+}
+
+func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	b := mock.NewMockBotClient(ctrl)
+	s := mock.NewMockStore(ctrl)
+	target := BotHandlerImpl{bot: b, store: s}
+
+	group := store.NewGroup(
+		GROUP_ID,
+		store.GROUP_STARTED,
+		[]store.User{
+			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
+			{ID: WARIKO_ID, Name: "わり子", PayAmount: 4000},
+		},
+	)
+
+	// Mock and check GetGroup method call.
+	s.
+		EXPECT().
+		GetGroup(group.ID).
+		Return(group, nil).
+		Times(1)
+
+	// Check updated group
+	s.
+		EXPECT().
+		SaveGroup(gomock.Any()).
+		Times(1).
+		Do(func(newGroup *store.Group) {
+			assert.Equal(t, group.ID, newGroup.ID)
+			assert.Equal(t, store.GROUP_STARTED, newGroup.Status)
+			assert.Len(t, newGroup.Members, 2)
+
+			wario, exists := newGroup.Members[WARIKO_ID]
+			assert.True(t, exists)
+			assert.Equal(t, int64(4000), wario.PayAmount)
+		})
+
+		// Check reply message.
+	expectedMessage := linebot.NewTextMessage("👍")
+	b.
+		EXPECT().
+		ReplyMessage(REPLY_TOKEN, gomock.Any()).
+		Times(1).
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Len(t, messages, 1)
+			assert.Equal(t, expectedMessage, messages[0])
+		})
+
+	event := newTestMessageEvent(
+		REPLY_TOKEN,
+		linebot.EventSourceTypeGroup,
+		group.ID,
+		WARIO_ID,
+	)
+	message := newTextMessage("精算完了")
 	err := target.handleTextMessage(event, message)
 
 	assert.Nil(t, err)
@@ -267,10 +445,10 @@ func TestHandleTextMessage_unsupportedSourceType(t *testing.T) {
 
 				b.
 					EXPECT().
-					ReplyTextMessage(gomock.Any(), gomock.Any()).
+					ReplyTextMessage(REPLY_TOKEN, gomock.Any()).
 					Times(0)
 
-				event := newTestMessageEvent("replyToken", eventSourceType, "dummy", "dummy")
+				event := newTestMessageEvent(REPLY_TOKEN, eventSourceType, "dummy", "dummy")
 				message := newTextMessage("おーい")
 				err := target.handleTextMessage(event, message)
 
