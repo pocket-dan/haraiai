@@ -1,4 +1,4 @@
-module github.com/raahii/haraiai/func/bot
+module github.com/raahii/haraiai/func/api
 
 go 1.18
 

@@ -5,18 +5,28 @@ import (
 	"net/http"
 
 	"github.com/raahii/haraiai/pkg/handler"
+	"github.com/rs/cors"
 )
 
 // Run for local development.
 func main() {
-	bh, err := handler.NewBotHandler()
+	bot, err := handler.NewBotHandler()
 	if err != nil {
 		panic(err)
 	}
 
-	http.HandleFunc("/bot/webhook", bh.HandleWebhook)
+	api, err := handler.NewApiHandler()
+	if err != nil {
+		panic(err)
+	}
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/BotWebhookHandler", bot.HandleWebhook)
+	mux.HandleFunc("/NotifyInquiry", api.NotifyInquiry)
+
+	handler := cors.Default().Handler(mux)
+	if err := http.ListenAndServe(":8080", handler); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 }

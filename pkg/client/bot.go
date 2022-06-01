@@ -10,7 +10,7 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-// This client is just a wrapper for line-bot-sdk-go client
+// This package is just a wrapper for line-bot-sdk-go client
 // to enable mocking/stubbing behavior.
 
 type BotClient interface {

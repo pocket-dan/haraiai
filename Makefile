@@ -2,10 +2,12 @@
 
 # functions
 FUNC_BOT = func/bot
+FUNC_API = func/api
 
 
 build: clean generate
 	cd $(FUNC_BOT) && go mod tidy && go mod vendor && go build
+	cd $(FUNC_API) && go mod tidy && go mod vendor && go build
 
 clean:
 	rm -rf $(FUNC_BOT)/vendor
@@ -24,7 +26,7 @@ ci-test: prepare build generate
 	cd pkg && PHASE=test go test -v ./...
 
 develop:
-	PHASE=local go run tool/develop/main.go
+	cd tool/develop && PHASE=local go run main.go
 
 develop-fe:
 	cd front && npm run dev
