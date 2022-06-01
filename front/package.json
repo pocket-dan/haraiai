@@ -8,6 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@line/liff": "^2.20.1",
+    "axios": "^0.27.2",
     "primeicons": "^5.0.0",
     "primevue": "^3.12.6",
     "vue": "^3.2.25",
