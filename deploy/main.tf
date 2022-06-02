@@ -54,6 +54,7 @@ resource "google_cloudfunctions_function" "bot_webhook" {
   environment_variables = {
     "PHASE" = "production"
     "PROJECT_ID" = "haraiai"
+    "FE_BASE_URL" = "https://haraiai.netlify.app"
 
     "CHANNEL_SECRET" = data.google_secret_manager_secret_version.line_bot_channel_secret.secret_data
     "CHANNEL_ACCESS_TOKEN" = data.google_secret_manager_secret_version.line_bot_channel_access_token.secret_data
@@ -105,6 +106,7 @@ resource "google_cloudfunctions_function" "api_notify_inquiry" {
 
   environment_variables = {
     "PHASE" = "production"
+    "FE_BASE_URL" = "https://haraiai.netlify.app"
 
     "LINE_NOTIFY_TOKEN" = data.google_secret_manager_secret_version.line_notifier_receiver_token.secret_data
   }

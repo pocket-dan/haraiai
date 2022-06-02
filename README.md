@@ -3,7 +3,7 @@
 </div>
 <h2 align="center">haraiai - 払い合い</h2>
 <p align="center">
-  LINEアプリ上で2人で使える <b>精算しない割り勘アプリです</b>。<br />
-  LINE Bot と LIFF でみなさんの「払い合い」をサポートします。
+  LINEアプリ上で <b>2人で使える割り勘アプリ</b> です。<br />
+  LINE Bot でみなさんの「払い合い」をサポートします。
 </p>
 <div align="center"></div>
