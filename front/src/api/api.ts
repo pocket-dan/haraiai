@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from 'axios';
-import { BACKEND_API_BASE_URL } from '@/config.ts'
+import { BACKEND_API_BASE_URL } from '../config' // TODO: why '@/config' not work?
 
 const instance = axios.create({
   baseURL: BACKEND_API_BASE_URL,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import api from '@/api/api.ts'
+import api from '../../api/api' // TODO: why '@/api/api' not work?
 
 const error = reactive({
   isError: false,
