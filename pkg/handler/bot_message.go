@@ -21,6 +21,7 @@ const (
 	TOTAL_UP_MESSAGE         = "集計"
 	EVEN_UP_MESSAGE          = "精算"
 	EVEN_UP_COMPLETE_MESSAGE = "精算完了"
+	HELP_MESSAGE             = "ヘルプ"
 	TOTAL_UP_PREFIX          = "支払った総額は..."
 
 	DONE_REPLY_MESSAGE = "👍"
@@ -72,7 +73,7 @@ var (
 
 	TUTORIAL_REPLYS_4 = []linebot.SendingMessage{
 		linebot.NewTextMessage("お疲れさまでした！使い方の説明はおしまいです！😄"),
-		// linebot.NewTextMessage("疑問がある場合は「ヘルプ」"),
+		linebot.NewTextMessage("わからないことがあったら ヘルプ と声をかけてね"),
 		// linebot.NewTextMessage("最後に haraiai には支払いを精算してリセットする機能はないよ。定期的な精算をするよりも、支払いが少ない側が次回多めに払うことで支払い額のバランスを保つようにしよう！"),
 	}
 )
@@ -132,6 +133,14 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 	// Complete even up payment amount.
 	if message.Text == EVEN_UP_COMPLETE_MESSAGE {
 		if err := bh.replyEvenUpComplete(event, group); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	// Show guide for help.
+	if message.Text == HELP_MESSAGE {
+		if err := bh.replyHelpMessage(event); err != nil {
 			return err
 		}
 		return nil
@@ -227,7 +236,7 @@ func (bh *BotHandlerImpl) replyEvenUpConfirmation(
 
 	var replyMessage linebot.SendingMessage
 	if whoPayALot.PayAmount == whoPayLess.PayAmount {
-		replyMessage = linebot.NewTextMessage("払った額は同じ！精算の必要はないよ。")
+		replyMessage = linebot.NewTextMessage("払った額は同じ！精算の必要はないよ")
 	} else {
 		d := (whoPayALot.PayAmount - whoPayLess.PayAmount) / 2
 		text := fmt.Sprintf("%s は %s に %d 円払うと精算完了です。精算しましたか？", whoPayLess.Name, whoPayALot.Name, d)
@@ -289,6 +298,18 @@ func (bh *BotHandlerImpl) addNewPayment(event *linebot.Event, group *store.Group
 
 	if err := bh.store.SaveGroup(group); err != nil {
 		return fmt.Errorf("failed to update group: %w", err)
+	}
+
+	return nil
+}
+
+func (bh *BotHandlerImpl) replyHelpMessage(event *linebot.Event) error {
+	replyMessage := []linebot.SendingMessage{
+		linebot.NewTextMessage("ヘルプページはこちら:\n" + bh.config.GetHelpPageURL()),
+	}
+
+	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessage...); err != nil {
+		return err
 	}
 
 	return nil

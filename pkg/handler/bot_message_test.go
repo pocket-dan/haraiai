@@ -21,16 +21,25 @@ const (
 	WARIKO_ID string = "wariko ID"
 )
 
+var (
+	DEFAULT_GROUP = store.NewGroup(
+		GROUP_ID,
+		store.GROUP_STARTED,
+		[]store.User{
+			{ID: WARIO_ID, Name: "わり夫", PayAmount: 0},
+			{ID: WARIKO_ID, Name: "わり子", PayAmount: 0},
+		},
+	)
+)
+
 func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	c := mock.NewMockBotConfig(ctrl)
 	b := mock.NewMockBotClient(ctrl)
 	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{
-		bot:   b,
-		store: s,
-	}
+	target := BotHandlerImpl{config: c, bot: b, store: s}
 
 	group := store.NewGroup(
 		GROUP_ID,
@@ -77,12 +86,10 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	c := mock.NewMockBotConfig(ctrl)
 	b := mock.NewMockBotClient(ctrl)
 	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{
-		bot:   b,
-		store: s,
-	}
+	target := BotHandlerImpl{config: c, bot: b, store: s}
 
 	firstPerson := store.NewUser("uidx", "わり夫", int64(0))
 	group := store.NewGroup(
@@ -131,12 +138,10 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	c := mock.NewMockBotConfig(ctrl)
 	b := mock.NewMockBotClient(ctrl)
 	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{
-		bot:   b,
-		store: s,
-	}
+	target := BotHandlerImpl{config: c, bot: b, store: s}
 
 	group := store.NewGroup(
 		GROUP_ID,
@@ -178,12 +183,10 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	c := mock.NewMockBotConfig(ctrl)
 	b := mock.NewMockBotClient(ctrl)
 	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{
-		bot:   b,
-		store: s,
-	}
+	target := BotHandlerImpl{config: c, bot: b, store: s}
 
 	group := store.NewGroup(
 		GROUP_ID,
@@ -241,12 +244,10 @@ func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	c := mock.NewMockBotConfig(ctrl)
 	b := mock.NewMockBotClient(ctrl)
 	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{
-		bot:   b,
-		store: s,
-	}
+	target := BotHandlerImpl{config: c, bot: b, store: s}
 
 	group := store.NewGroup(
 		GROUP_ID,
@@ -301,9 +302,10 @@ func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	c := mock.NewMockBotConfig(ctrl)
 	b := mock.NewMockBotClient(ctrl)
 	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{bot: b, store: s}
+	target := BotHandlerImpl{config: c, bot: b, store: s}
 
 	group := store.NewGroup(
 		GROUP_ID,
@@ -322,7 +324,7 @@ func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
 		Times(1)
 
 		// Check reply message.
-	expectedMessage := linebot.NewTextMessage("払った額は同じ！精算の必要はないよ。")
+	expectedMessage := linebot.NewTextMessage("払った額は同じ！精算の必要はないよ")
 	b.
 		EXPECT().
 		ReplyMessage(REPLY_TOKEN, gomock.Any()).
@@ -348,9 +350,10 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	c := mock.NewMockBotConfig(ctrl)
 	b := mock.NewMockBotClient(ctrl)
 	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{bot: b, store: s}
+	target := BotHandlerImpl{config: c, bot: b, store: s}
 
 	group := store.NewGroup(
 		GROUP_ID,
@@ -406,6 +409,55 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestHandleHelpMessage_success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	c := mock.NewMockBotConfig(ctrl)
+	b := mock.NewMockBotClient(ctrl)
+	s := mock.NewMockStore(ctrl)
+	target := BotHandlerImpl{config: c, bot: b, store: s}
+
+	// Mock config
+	helpPageURL := "https://test.com/help"
+	c.
+		EXPECT().
+		GetHelpPageURL().
+		Return(helpPageURL).
+		Times(1)
+
+	// Mock and check GetGroup method call.
+	s.
+		EXPECT().
+		GetGroup(GROUP_ID).
+		Return(DEFAULT_GROUP, nil).
+		Times(1)
+
+	// Check reply message.
+	expectedMessage := linebot.NewTextMessage(
+		"ヘルプページはこちら:\n" + helpPageURL,
+	)
+	b.
+		EXPECT().
+		ReplyMessage(REPLY_TOKEN, gomock.Any()).
+		Times(1).
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Len(t, messages, 1)
+			assert.Equal(t, expectedMessage, messages[0])
+		})
+
+	event := newTestMessageEvent(
+		REPLY_TOKEN,
+		linebot.EventSourceTypeGroup,
+		GROUP_ID,
+		WARIO_ID,
+	)
+	message := newTextMessage("ヘルプ")
+	err := target.handleTextMessage(event, message)
+
+	assert.Nil(t, err)
+}
+
 func newTestMessageEvent(
 	replyToken string,
 	eventSourceType linebot.EventSourceType,
@@ -436,12 +488,10 @@ func TestHandleTextMessage_unsupportedSourceType(t *testing.T) {
 				ctrl := gomock.NewController(t)
 				defer ctrl.Finish()
 
+				c := mock.NewMockBotConfig(ctrl)
 				b := mock.NewMockBotClient(ctrl)
 				s := mock.NewMockStore(ctrl)
-				target := BotHandlerImpl{
-					bot:   b,
-					store: s,
-				}
+				target := BotHandlerImpl{config: c, bot: b, store: s}
 
 				b.
 					EXPECT().

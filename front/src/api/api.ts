@@ -7,11 +7,8 @@ const instance = axios.create({
 });
 
 const sendInquiry = (text: string): Promise<AxiosResponse<void>> => {
-  return instance.post("/NotifyInquiry", {
-    text,
-  })
+  return instance.post("/NotifyInquiry", { text, })
 }
-
 
 export default {
   sendInquiry,

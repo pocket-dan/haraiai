@@ -15,12 +15,10 @@ func TestHandleBotJoin_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	c := mock.NewMockBotConfig(ctrl)
 	b := mock.NewMockBotClient(ctrl)
 	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{
-		bot:   b,
-		store: s,
-	}
+	target := BotHandlerImpl{config: c, bot: b, store: s}
 
 	replyToken := "replyToken"
 	groupID := "groupID"
@@ -58,12 +56,10 @@ func TestHandleBotJoin_unsupportedSourceType(t *testing.T) {
 				ctrl := gomock.NewController(t)
 				defer ctrl.Finish()
 
+				c := mock.NewMockBotConfig(ctrl)
 				b := mock.NewMockBotClient(ctrl)
 				s := mock.NewMockStore(ctrl)
-				target := BotHandlerImpl{
-					bot:   b,
-					store: s,
-				}
+				target := BotHandlerImpl{config: c, bot: b, store: s}
 
 				replyToken := "replyToken"
 				groupID := "groupID"

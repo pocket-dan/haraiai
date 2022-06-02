@@ -7,6 +7,7 @@ import (
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/raahii/haraiai/pkg/client"
+	"github.com/raahii/haraiai/pkg/config"
 	"github.com/raahii/haraiai/pkg/log"
 	"github.com/raahii/haraiai/pkg/store"
 )
@@ -16,11 +17,17 @@ type BotHandler interface {
 }
 
 type BotHandlerImpl struct {
-	bot   client.BotClient
-	store store.Store
+	config config.BotConfig
+	bot    client.BotClient
+	store  store.Store
 }
 
 func NewBotHandler() (*BotHandlerImpl, error) {
+	c, err := config.NewBotConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize bot config: %w", err)
+	}
+
 	bc, err := client.NewBotClient()
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize bot client: %w", err)
@@ -32,8 +39,9 @@ func NewBotHandler() (*BotHandlerImpl, error) {
 	}
 
 	return &BotHandlerImpl{
-		bot:   bc,
-		store: s,
+		config: c,
+		bot:    bc,
+		store:  s,
 	}, nil
 }
 

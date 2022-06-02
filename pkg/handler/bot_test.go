@@ -16,12 +16,10 @@ func TestHandleWebhook_405_invalidHTTPMethod(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	c := mock.NewMockBotConfig(ctrl)
 	b := mock.NewMockBotClient(ctrl)
 	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{
-		bot:   b,
-		store: s,
-	}
+	target := BotHandlerImpl{config: c, bot: b, store: s}
 	req, _ := http.NewRequest("GET", "https://example.com", nil)
 
 	// Do not call bot methods
@@ -66,12 +64,10 @@ func TestHandleWebhook_200_NotTextMessage(t *testing.T) {
 				ctrl := gomock.NewController(t)
 				defer ctrl.Finish()
 
+				c := mock.NewMockBotConfig(ctrl)
 				b := mock.NewMockBotClient(ctrl)
 				s := mock.NewMockStore(ctrl)
-				target := BotHandlerImpl{
-					bot:   b,
-					store: s,
-				}
+				target := BotHandlerImpl{config: c, bot: b, store: s}
 				req, _ := http.NewRequest("POST", "https://example.com", nil)
 
 				events := []*linebot.Event{newTestEvent(eventType)}
