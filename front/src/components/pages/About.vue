@@ -40,6 +40,8 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
 
 <style lang="scss" scoped>
 .about-page {
+  margin: 0 auto;
+
   text-align: center;
   padding-top: 20px;
 

@@ -61,7 +61,7 @@ resource "google_cloudfunctions_function" "bot_webhook" {
   }
 }
 
-resource "google_cloudfunctions_function_iam_member" "invoker" {
+resource "google_cloudfunctions_function_iam_member" "webhook_invoker" {
   project        = google_cloudfunctions_function.bot_webhook.project
   region         = google_cloudfunctions_function.bot_webhook.region
   cloud_function = google_cloudfunctions_function.bot_webhook.name
@@ -111,6 +111,16 @@ resource "google_cloudfunctions_function" "api_notify_inquiry" {
     "LINE_NOTIFY_TOKEN" = data.google_secret_manager_secret_version.line_notifier_receiver_token.secret_data
   }
 }
+
+resource "google_cloudfunctions_function_iam_member" "inquiry_invoker" {
+  project        = google_cloudfunctions_function.api_notify_inquiry.project
+  region         = google_cloudfunctions_function.api_notify_inquiry.region
+  cloud_function = google_cloudfunctions_function.api_notify_inquiry.name
+
+  role   = "roles/cloudfunctions.invoker"
+  member = "allUsers"
+}
+
 output "function_api_inquiry_url" {
   value = google_cloudfunctions_function.api_notify_inquiry.https_trigger_url
 }

@@ -52,7 +52,7 @@ async function sendInquiry() {
 .inquiry-page {
   main {
     max-width: 800px;
-    margin: 0 30px;
+    margin: 0 auto;
 
     h1 {
       margin-bottom: 40px;
@@ -64,6 +64,7 @@ async function sendInquiry() {
     }
 
     textarea {
+      font-size: 16px;
       width: 100%;
       display: block;
       height: 200px;

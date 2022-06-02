@@ -11,8 +11,8 @@ function questionIdOf(i: number): string {
 
 const FAQs: FAQ[] = [
   {
-    question: "精算できますか？",
-    answer: "haraiai をお使いのグループで「精算」と送ることで、精算することが可能です。",
+    question: "精算はできますか？",
+    answer: "はい、haraiai をお使いのグループで「精算」と送ることで可能です。しかし精算はおすすめしていません。理由は、支払いが少ない側が次回払うようにしてバランスを保つと面倒な精算作業はしなくて済み、お互いが楽だと考えているからです。",
   },
 ]
 
@@ -20,44 +20,45 @@ const FAQs: FAQ[] = [
 
 <template>
   <div class="help-page">
-    <main>
-      <h1>よくある質問</h1>
+    <h1>よくある質問</h1>
 
-      <section id="toc">
-        <h2>目次</h2>
-        <ul>
-          <a v-for="(e, i) in FAQs" :key="i" :href="'#' + questionIdOf(i)">
-            <li >{{ e.question }}</li>
-          </a>
-        </ul>
-      </section>
+    <section id="toc">
+      <h2>目次</h2>
+      <ul>
+        <a v-for="(e, i) in FAQs" :key="i" :href="'#' + questionIdOf(i)">
+          <li >{{ e.question }}</li>
+        </a>
+      </ul>
+    </section>
 
-      <section id="faq">
-        <h2>質問</h2>
-        <p>下記に掲載されていない質問や要望がある方は <router-link to="/inquiry">こちら</router-link> よりお気軽にお問い合わせください</p>
-        <div class="qa-list">
-          <dl class="qa" v-for="(e, i) in FAQs" :key="i" :id="questionIdOf(i)">
-            <dt><li>{{ e.question }}</li></dt>
-            <dd>
-              <p>{{ e.answer }}</p>
-            </dd>
-          </dl>
-        </div>
-      </section>
-    </main>
+    <section id="faq">
+      <h2>質問と回答</h2>
+      <div class="qa-list">
+        <dl class="qa" v-for="(e, i) in FAQs" :key="i" :id="questionIdOf(i)">
+          <dt><li>{{ e.question }}</li></dt>
+          <dd>
+            <p>{{ e.answer }}</p>
+          </dd>
+        </dl>
+      </div>
+
+      <p class="note">下記に掲載されていない質問や要望がある方は <router-link to="/inquiry">こちら</router-link> よりお気軽にお問い合わせください</p>
+    </section>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .help-page {
-  main {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 40px;
 
-    h2 {
-      margin-top: 40px
-    }
+  h2 {
+    margin-top: 60px
+  }
+
+  .note {
+    margin-top: 60px;
   }
 
   .qa-list {
