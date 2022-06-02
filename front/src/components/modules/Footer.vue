@@ -19,11 +19,10 @@
 
 <style lang="scss" scoped>
 footer {
-  margin: 80px 0 30px;
+  margin: 50px 0 30px;
   display: flex;
   align-items: center;
   flex-direction: column;
-  padding-top: 30px;
 
   .credit {
     font-size: 0.8rem;

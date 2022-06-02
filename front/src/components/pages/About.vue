@@ -11,29 +11,38 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
       <BeMyFriendButton />
     </section>
 
-    <section class="white">
+    <section id="feature1" class="white">
       <h2>LINE上ですぐに始められる</h2>
       <p class="desc">
-      はじめ方は簡単。一緒に使う相手と haraiai をグループに追加するだけ。<br />
+      はじめ方は簡単。一緒に使う相手と haraiai の3人のグループを作るだけ。<br />
       面倒なアプリのインストールなく、 すぐにはじめられます。
       </p>
+
+      <img src="@/assets/img/f1.png" alt="Feature1"/>
     </section>
 
-    <section class="gray">
-      <h2>支払った金額を自動で割り勘</h2>
+    <section id="feature2" class="gray">
+      <h2>支払い金額を自動で割り勘</h2>
       <p class="desc">
       お会計をまとめて払った人は、グループに タイトルと金額の2行のメッセージを投稿。<br />
       あとは haraiai が5:5で割り勘してくれます。
       </p>
 
+      <img class="feature" src="@/assets/img/f2.png" alt="Feature2"/>
     </section>
 
-    <section class="white">
+    <section id="feature3" class="white">
       <h2>退屈な精算はもうしない</h2>
       <p class="desc">
       その精算、本当に必要ですか？ <br />
       支払いが少ない側は、 次回多めに払うことで バランスを保ちましょう。
       </p>
+
+      <img src="@/assets/img/f3.png" alt="Feature3"/>
+    </section>
+
+    <section id="add-friend" class="gray">
+      <BeMyFriendButton />
     </section>
   </div>
 </template>
@@ -45,8 +54,42 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
   text-align: center;
   padding-top: 20px;
 
+
+  #feature1 {
+    height: 550px;
+
+    img {
+      width: 85%;
+      max-width: 350px;
+    }
+  }
+
+  #feature2 {
+    height: 520px;
+
+    img {
+      width: 100%;
+      max-width: 370px;
+    }
+  }
+
+  #feature3 {
+    height: 520px;
+
+    img {
+      width: 100%;
+      max-width: 380px;
+    }
+  }
+
+  #add-friend {
+    padding: 40px 0 0;
+    height: 40px;
+  }
+
   section {
     height: 300px;
+
     padding: 30px 30px;
 
     &.gray {
@@ -60,6 +103,7 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
       margin-bottom: 30px;
       word-break: keep-all;
     }
+
   }
 }
 </style>
