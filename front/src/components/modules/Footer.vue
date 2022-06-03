@@ -6,6 +6,7 @@
     <router-link :to="{'name': 'about'}">サービスについて</router-link>
     <router-link :to="{'name': 'help'}">よくある質問</router-link>
     <router-link :to="{'name': 'inquiry'}">フィードバック</router-link>
+    <router-link :to="{'name': 'privacy'}">プライバシーポリシー</router-link>
 
     <br />
 

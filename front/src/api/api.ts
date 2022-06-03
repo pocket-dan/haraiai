@@ -3,7 +3,7 @@ import { BACKEND_API_BASE_URL } from '../config' // TODO: why '@/config' not wor
 
 const instance = axios.create({
   baseURL: BACKEND_API_BASE_URL,
-  timeout: 3000,
+  timeout: 5000,
 });
 
 const sendInquiry = (text: string): Promise<AxiosResponse<void>> => {

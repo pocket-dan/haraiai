@@ -53,6 +53,7 @@ async function sendInquiry() {
   main {
     max-width: 800px;
     margin: 0 auto;
+    padding: 0 20px;
 
     h1 {
       margin-bottom: 40px;
