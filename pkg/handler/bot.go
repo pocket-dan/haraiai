@@ -38,11 +38,13 @@ func NewBotHandler() (*BotHandlerImpl, error) {
 		return nil, fmt.Errorf("failed to initialize store: %w", err)
 	}
 
-	return &BotHandlerImpl{
-		config: c,
-		bot:    bc,
-		store:  s,
-	}, nil
+	handler := &BotHandlerImpl{config: c, bot: bc, store: s}
+	err = handler.createRichMenu()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create rich menu: %w", err)
+	}
+
+	return handler, nil
 }
 
 func (bh *BotHandlerImpl) HandleWebhook(w http.ResponseWriter, req *http.Request) {

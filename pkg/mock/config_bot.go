@@ -33,6 +33,20 @@ func (m *MockBotConfig) EXPECT() *MockBotConfigMockRecorder {
 	return m.recorder
 }
 
+// GetAboutPageURL mocks base method.
+func (m *MockBotConfig) GetAboutPageURL() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAboutPageURL")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetAboutPageURL indicates an expected call of GetAboutPageURL.
+func (mr *MockBotConfigMockRecorder) GetAboutPageURL() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAboutPageURL", reflect.TypeOf((*MockBotConfig)(nil).GetAboutPageURL))
+}
+
 // GetHelpPageURL mocks base method.
 func (m *MockBotConfig) GetHelpPageURL() string {
 	m.ctrl.T.Helper()
@@ -45,4 +59,32 @@ func (m *MockBotConfig) GetHelpPageURL() string {
 func (mr *MockBotConfigMockRecorder) GetHelpPageURL() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHelpPageURL", reflect.TypeOf((*MockBotConfig)(nil).GetHelpPageURL))
+}
+
+// GetInquiryPageURL mocks base method.
+func (m *MockBotConfig) GetInquiryPageURL() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInquiryPageURL")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetInquiryPageURL indicates an expected call of GetInquiryPageURL.
+func (mr *MockBotConfigMockRecorder) GetInquiryPageURL() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInquiryPageURL", reflect.TypeOf((*MockBotConfig)(nil).GetInquiryPageURL))
+}
+
+// GetRichMenuImagePath mocks base method.
+func (m *MockBotConfig) GetRichMenuImagePath() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRichMenuImagePath")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetRichMenuImagePath indicates an expected call of GetRichMenuImagePath.
+func (mr *MockBotConfigMockRecorder) GetRichMenuImagePath() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRichMenuImagePath", reflect.TypeOf((*MockBotConfig)(nil).GetRichMenuImagePath))
 }

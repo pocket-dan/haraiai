@@ -24,9 +24,10 @@ go.work
 
 vendor
 
+# functions
+func/bot/images
 
 # terraform
-
 tmp
 .terraform
 .terraform.*

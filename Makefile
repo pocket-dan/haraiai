@@ -32,6 +32,10 @@ develop-fe:
 	cd front && npm run dev
 
 deploy: build
+	# copy static resources
+	rm -rf func/bot/images || true
+	cp -r pkg/images func/bot/
+	# deploy
 	cd deploy && terraform apply
 
 ngrok:

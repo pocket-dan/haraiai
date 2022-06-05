@@ -17,6 +17,9 @@ type BotClient interface {
 	ParseRequest(*http.Request) ([]*linebot.Event, error)
 	ReplyTextMessage(string, ...string) error
 	ReplyMessage(string, ...linebot.SendingMessage) error
+	CreateRichMenu(linebot.RichMenu) (string, error)
+	UploadRichMenuImage(string, string) error
+	SetDefaultRichMenu(string) error
 }
 
 type BotClientImpl struct {
@@ -61,5 +64,24 @@ func (bc *BotClientImpl) ReplyTextMessage(replyToken string, textMessages ...str
 
 func (bc *BotClientImpl) ReplyMessage(replyToken string, messages ...linebot.SendingMessage) error {
 	_, err := bc.client.ReplyMessage(replyToken, messages...).Do()
+	return err
+}
+
+func (bc *BotClientImpl) CreateRichMenu(richMenu linebot.RichMenu) (string, error) {
+	resp, err := bc.client.CreateRichMenu(richMenu).Do()
+	if err != nil {
+		return "", fmt.Errorf("SDK CreateRichMenu method returns error: %w", err)
+	}
+
+	return resp.RichMenuID, nil
+}
+
+func (bc *BotClientImpl) UploadRichMenuImage(richMenuID, imgPath string) error {
+	_, err := bc.client.UploadRichMenuImage(richMenuID, imgPath).Do()
+	return err
+}
+
+func (bc *BotClientImpl) SetDefaultRichMenu(richMenuID string) error {
+	_, err := bc.client.SetDefaultRichMenu(richMenuID).Do()
 	return err
 }

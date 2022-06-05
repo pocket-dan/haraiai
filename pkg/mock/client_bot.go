@@ -35,6 +35,21 @@ func (m *MockBotClient) EXPECT() *MockBotClientMockRecorder {
 	return m.recorder
 }
 
+// CreateRichMenu mocks base method.
+func (m *MockBotClient) CreateRichMenu(arg0 linebot.RichMenu) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRichMenu", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateRichMenu indicates an expected call of CreateRichMenu.
+func (mr *MockBotClientMockRecorder) CreateRichMenu(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRichMenu", reflect.TypeOf((*MockBotClient)(nil).CreateRichMenu), arg0)
+}
+
 // ParseRequest mocks base method.
 func (m *MockBotClient) ParseRequest(arg0 *http.Request) ([]*linebot.Event, error) {
 	m.ctrl.T.Helper()
@@ -86,4 +101,32 @@ func (mr *MockBotClientMockRecorder) ReplyTextMessage(arg0 interface{}, arg1 ...
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0}, arg1...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplyTextMessage", reflect.TypeOf((*MockBotClient)(nil).ReplyTextMessage), varargs...)
+}
+
+// SetDefaultRichMenu mocks base method.
+func (m *MockBotClient) SetDefaultRichMenu(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetDefaultRichMenu", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetDefaultRichMenu indicates an expected call of SetDefaultRichMenu.
+func (mr *MockBotClientMockRecorder) SetDefaultRichMenu(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDefaultRichMenu", reflect.TypeOf((*MockBotClient)(nil).SetDefaultRichMenu), arg0)
+}
+
+// UploadRichMenuImage mocks base method.
+func (m *MockBotClient) UploadRichMenuImage(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadRichMenuImage", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadRichMenuImage indicates an expected call of UploadRichMenuImage.
+func (mr *MockBotClientMockRecorder) UploadRichMenuImage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadRichMenuImage", reflect.TypeOf((*MockBotClient)(nil).UploadRichMenuImage), arg0, arg1)
 }

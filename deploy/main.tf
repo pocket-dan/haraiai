@@ -30,7 +30,7 @@ data "archive_file" "bot" {
 }
 
 resource "google_storage_bucket_object" "bot" {
-  name   = "func/bot/${data.archive_file.bot.output_md5}.zip"
+  name   = "func/bot.${data.archive_file.bot.output_md5}.zip"
   bucket = google_storage_bucket.bucket.name
   source = data.archive_file.bot.output_path
 }
@@ -55,6 +55,7 @@ resource "google_cloudfunctions_function" "bot_webhook" {
     "PHASE" = "production"
     "PROJECT_ID" = "haraiai"
     "FE_BASE_URL" = "https://haraiai.netlify.app"
+    "PACKAGE_BASE_PATH" = "/workspace/serverless_function_source_code"
 
     "CHANNEL_SECRET" = data.google_secret_manager_secret_version.line_bot_channel_secret.secret_data
     "CHANNEL_ACCESS_TOKEN" = data.google_secret_manager_secret_version.line_bot_channel_access_token.secret_data
@@ -83,7 +84,7 @@ data "archive_file" "api" {
 }
 
 resource "google_storage_bucket_object" "api" {
-  name   = "func/bot/${data.archive_file.api.output_md5}.zip"
+  name   = "func/api.${data.archive_file.api.output_md5}.zip"
   bucket = google_storage_bucket.bucket.name
   source = data.archive_file.api.output_path
 }
