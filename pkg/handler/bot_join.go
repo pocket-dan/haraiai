@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	NOT_SUPPORTED_MESSAGE string = `すみません、このトークで払い合いをお使いいただけません。
+	NOT_SUPPORTED_MESSAGE string = `すみません、このトークでは haraiai をお使いいただけません。
   お手数ですが、グループを作成していただき、再度追加してください 🙇`
 )
 

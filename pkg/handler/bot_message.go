@@ -143,6 +143,7 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 		return nil
 	}
 
+	// HACK: Don't access database every time
 	groupID := event.Source.GroupID
 	group, err := bh.store.GetGroup(groupID)
 	if err != nil {
