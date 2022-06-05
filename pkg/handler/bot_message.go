@@ -25,6 +25,54 @@ const (
 	TOTAL_UP_PREFIX          = "支払った総額は..."
 
 	DONE_REPLY_MESSAGE = "👍"
+
+	EVEN_UP_CONFIRMATION_TEMPLATE_JSON string = `
+  {
+    "type": "bubble",
+    "size": "mega",
+    "header": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+      {
+        "type": "text",
+        "text": "自動で精算します。渡しましたか？\n（2回以上タップしないでね）",
+        "color": "#ffffff",
+        "align": "start",
+        "size": "md",
+        "gravity": "center",
+        "wrap": true
+      }
+      ],
+      "backgroundColor": "#27ACB2",
+      "paddingTop": "19px",
+      "paddingAll": "12px",
+      "paddingBottom": "16px"
+    },
+    "body": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+      {
+        "type": "button",
+        "action": {
+          "type": "message",
+          "label": "はい",
+          "text": "精算完了"
+        },
+        "height": "sm"
+      }
+      ],
+      "spacing": "md",
+      "paddingAll": "12px"
+    },
+    "styles": {
+      "footer": {
+        "separator": false
+      }
+    }
+  }
+  `
 )
 
 var (
@@ -76,7 +124,18 @@ var (
 		linebot.NewTextMessage("わからないことがあったら ヘルプ と声をかけてね"),
 		// linebot.NewTextMessage("最後に haraiai には支払いを精算してリセットする機能はないよ。定期的な精算をするよりも、支払いが少ない側が次回多めに払うことで支払い額のバランスを保つようにしよう！"),
 	}
+
+	// Will be initialized from json string after start up.
+	EVEN_UP_CONFIRMATION_REPLY linebot.SendingMessage
 )
+
+func init() {
+	flexContents, err := linebot.UnmarshalFlexMessageJSON([]byte(EVEN_UP_CONFIRMATION_TEMPLATE_JSON))
+	if err != nil {
+		panic("failed to initialize flex contents for even up")
+	}
+	EVEN_UP_CONFIRMATION_REPLY = linebot.NewFlexMessage("精算しましたか？", flexContents)
+}
 
 // Entry point of handing text type webhook event
 func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *linebot.TextMessage) error {
@@ -234,23 +293,23 @@ func (bh *BotHandlerImpl) replyEvenUpConfirmation(
 	whoPayALot := &members[0]
 	whoPayLess := &members[1]
 
-	var replyMessage linebot.SendingMessage
+	replyMessages := []linebot.SendingMessage{}
 	if whoPayALot.PayAmount == whoPayLess.PayAmount {
-		replyMessage = linebot.NewTextMessage("払った額は同じ！精算の必要はないよ")
+		textMessage := linebot.NewTextMessage("払った額は同じ！精算の必要はないよ")
+		replyMessages = append(replyMessages, textMessage)
 	} else {
 		d := (whoPayALot.PayAmount - whoPayLess.PayAmount) / 2
-		text := fmt.Sprintf("%s は %s に %d 円払うと精算完了です。精算しましたか？", whoPayLess.Name, whoPayALot.Name, d)
-		replyMessage = linebot.NewTextMessage(text).WithQuickReplies(
-			linebot.NewQuickReplyItems(
-				linebot.NewQuickReplyButton(
-					"",
-					linebot.NewMessageAction("はい", EVEN_UP_COMPLETE_MESSAGE),
-				),
-			),
+		text := fmt.Sprintf("%sさんは%sさんに %d 円渡してね🙏", whoPayLess.Name, whoPayALot.Name, d)
+		textMessage := linebot.NewTextMessage(text)
+
+		replyMessages = append(
+			replyMessages,
+			textMessage,
+			EVEN_UP_CONFIRMATION_REPLY,
 		)
 	}
 
-	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessage); err != nil {
+	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessages...); err != nil {
 		return err
 	}
 
@@ -366,8 +425,9 @@ func createPayAmountResultMessage(members []store.User) string {
 	if whoPayALot.PayAmount == whoPayLess.PayAmount {
 		text = "2人とも支払った額は同じだよ！仲良し〜！"
 	} else {
-		d := whoPayALot.PayAmount - whoPayLess.PayAmount
-		text = fmt.Sprintf("%s は今度 %d 円分支払うと追いつくよ🙌", whoPayLess.Name, d)
+		d := (whoPayALot.PayAmount - whoPayLess.PayAmount) / 2
+		text = fmt.Sprintf("%sさんが %d 円多く払っているよ。", whoPayALot.Name, d)
+		text += fmt.Sprintf("次は%sさんが払うと距離が縮まるね🤝", whoPayLess.Name)
 	}
 
 	lines = append(lines, text)

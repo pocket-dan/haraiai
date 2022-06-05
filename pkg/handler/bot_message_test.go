@@ -158,7 +158,7 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 		Return(group, nil).
 		Times(1)
 
-	expectedMessage := "支払った総額は...\nわり夫: 1000円\nわり子: 5000円\n\nわり夫 は今度 4000 円分支払うと追いつくよ🙌"
+	expectedMessage := "支払った総額は...\nわり夫: 1000円\nわり子: 5000円\n\nわり子さんが 2000 円多く払っているよ。次はわり夫さんが払うと距離が縮まるね🤝"
 	b.
 		EXPECT().
 		ReplyMessage(REPLY_TOKEN, gomock.Any()).
@@ -265,16 +265,9 @@ func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
 		Return(group, nil).
 		Times(1)
 
-		// Check reply message.
-	expectedMessage := linebot.NewTextMessage(
-		"わり夫 は わり子 に 2000 円払うと精算完了です。精算しましたか？",
-	).WithQuickReplies(
-		linebot.NewQuickReplyItems(
-			linebot.NewQuickReplyButton(
-				"",
-				linebot.NewMessageAction("はい", EVEN_UP_COMPLETE_MESSAGE),
-			),
-		),
+	// Check reply message.
+	expectedTextMessage := linebot.NewTextMessage(
+		"わり夫さんはわり子さんに 2000 円渡してね🙏",
 	)
 
 	b.
@@ -282,8 +275,11 @@ func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
 		ReplyMessage(REPLY_TOKEN, gomock.Any()).
 		Times(1).
 		Do(func(_ string, messages ...linebot.SendingMessage) {
-			assert.Len(t, messages, 1)
-			assert.Equal(t, expectedMessage, messages[0])
+			assert.Len(t, messages, 2)
+			assert.Equal(t, expectedTextMessage, messages[0])
+
+			// Omit flex type message verification
+			// assert.Equal(t, expectedConfirmationMessage, messages[1])
 		})
 
 	event := newTestMessageEvent(
