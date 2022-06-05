@@ -72,6 +72,9 @@ func (bh *BotHandlerImpl) HandleWebhook(w http.ResponseWriter, req *http.Request
 		var err error
 
 		switch event.Type {
+		// Bot follow
+		case linebot.EventTypeFollow:
+			err = bh.handleBotFollow(event)
 		// Group join / leave
 		case linebot.EventTypeJoin:
 			err = bh.handleBotJoin(event)

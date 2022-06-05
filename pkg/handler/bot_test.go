@@ -43,7 +43,7 @@ func TestHandleWebhook_405_invalidHTTPMethod(t *testing.T) {
 func TestHandleWebhook_200_NotTextMessage(t *testing.T) {
 	unsupportedEventTypes := []linebot.EventType{
 		// linebot.EventTypeMessage,
-		linebot.EventTypeFollow,
+		// linebot.EventTypeFollow,
 		linebot.EventTypeUnfollow,
 		// linebot.EventTypeJoin,
 		// linebot.EventTypeLeave,
