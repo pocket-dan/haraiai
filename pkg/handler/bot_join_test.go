@@ -34,8 +34,11 @@ func TestHandleBotJoin_success(t *testing.T) {
 
 	b.
 		EXPECT().
-		ReplyTextMessage(replyToken, GREETING_MESSAGE).
-		Times(1)
+		ReplyMessage(replyToken, gomock.Any()).
+		Times(1).
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Len(t, messages, 3)
+		})
 
 	event := newTestJoinEvent(replyToken, linebot.EventSourceTypeGroup, groupID)
 	err := target.handleBotJoin(event)

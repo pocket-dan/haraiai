@@ -8,14 +8,17 @@ import (
 const (
 	NOT_SUPPORTED_MESSAGE string = `すみません、このトークで払い合いをお使いいただけません。
   お手数ですが、グループを作成していただき、再度追加してください 🙇`
+)
 
-	GREETING_MESSAGE string = `招待ありがとう！haraiai が二人の割り勘をサポートするよ🤝
-
-まずは2人のニックネームを教えてね。短いときれいに表示できるよ！
-
-○○だよ
-
-と答えてね。`
+var (
+	JOIN_REPLYS []linebot.SendingMessage = []linebot.SendingMessage{
+		linebot.NewTextMessage(
+			"招待ありがとう！haraiai が二人の割り勘をサポートするよ🤝\n\n" +
+				"まずは2人のニックネームを教えてね。短いときれいに表示できるよ！",
+		),
+		linebot.NewTextMessage("○○だよ"),
+		linebot.NewTextMessage("こんなふうに答えてね！"),
+	}
 )
 
 func (bh *BotHandlerImpl) handleBotJoin(event *linebot.Event) error {
@@ -41,7 +44,7 @@ func (bh *BotHandlerImpl) handleBotJoin(event *linebot.Event) error {
 	}
 
 	// Send greeting message.
-	err = bh.bot.ReplyTextMessage(event.ReplyToken, GREETING_MESSAGE)
+	err = bh.bot.ReplyMessage(event.ReplyToken, JOIN_REPLYS...)
 	if err != nil {
 		return err
 	}
