@@ -33,3 +33,6 @@ tmp
 .terraform.*
 *.tfstate
 *.tfstate.backup
+
+# other
+doc
