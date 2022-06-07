@@ -1,16 +1,20 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import VueGtag from "vue-gtag"
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+import VueGtag from "vue-gtag";
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(router)
+app.use(router);
 
 if (import.meta.env.PROD) {
-  app.use(VueGtag, {
-    config: {id: "G-FMS9YJCVM8"}
-  }, router);
+  app.use(
+    VueGtag,
+    {
+      config: { id: "G-FMS9YJCVM8" },
+    },
+    router
+  );
 }
 
-app.mount('#app')
+app.mount("#app");
