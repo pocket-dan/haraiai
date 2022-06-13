@@ -11,7 +11,7 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
       <BeMyFriendButton />
     </section>
 
-    <section id="feature1" class="white">
+    <section id="feature1" class="white feature">
       <h2>LINE上ですぐに始められる</h2>
       <p class="desc">
       はじめ方は簡単。一緒に使う相手と haraiai の3人のグループを作るだけ。<br />
@@ -21,7 +21,7 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
       <img src="@/assets/img/f1.png" alt="Feature1"/>
     </section>
 
-    <section id="feature2" class="gray">
+    <section id="feature2" class="gray feature">
       <h2>支払い金額を自動で割り勘</h2>
       <p class="desc">
       お会計をまとめて払った人は、グループに タイトルと金額の2行のメッセージを投稿。<br />
@@ -31,7 +31,7 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
       <img class="feature" src="@/assets/img/f2.png" alt="Feature2"/>
     </section>
 
-    <section id="feature3" class="white">
+    <section id="feature3" class="white feature">
       <h2>退屈な精算はもうしない</h2>
       <p class="desc">
       その精算、本当に必要ですか？ <br />
@@ -54,31 +54,14 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
   text-align: center;
   padding-top: 20px;
 
-
-  #feature1 {
-    height: 550px;
+  .feature {
+    height: auto;
 
     img {
-      width: 85%;
+      display: block;
+      width: 90%;
+      margin: 0 auto;
       max-width: 350px;
-    }
-  }
-
-  #feature2 {
-    height: 520px;
-
-    img {
-      width: 100%;
-      max-width: 370px;
-    }
-  }
-
-  #feature3 {
-    height: 520px;
-
-    img {
-      width: 100%;
-      max-width: 380px;
     }
   }
 
