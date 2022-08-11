@@ -1,5 +1,4 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <div class="how-to-use-page">
@@ -14,7 +13,7 @@
   padding: 0 40px;
 
   h2 {
-    margin-top: 60px
+    margin-top: 60px;
   }
 }
 </style>

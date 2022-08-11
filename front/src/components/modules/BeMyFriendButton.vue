@@ -1,10 +1,14 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <a href="https://page.line.me/560mkygn">
     <button class="be-my-friend-btn">
-      <img src="@/assets/img/line-round.png" width="30" class="line-logo-img" alt="LINE logo" />
+      <img
+        src="@/assets/img/line-round.png"
+        width="30"
+        class="line-logo-img"
+        alt="LINE logo"
+      >
       友だちに追加
     </button>
   </a>
@@ -23,9 +27,9 @@
   font-weight: bold;
   line-height: 1.1rem;
   color: #ffffff;
-  background: #06C755;
+  background: #06c755;
 
-  position:relative;
+  position: relative;
   padding-left: 30px;
 
   .line-logo-img {

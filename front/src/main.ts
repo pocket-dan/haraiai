@@ -1,7 +1,7 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import VueGtag from "vue-gtag";
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+import VueGtag from 'vue-gtag';
 
 const app = createApp(App);
 
@@ -11,10 +11,10 @@ if (import.meta.env.PROD) {
   app.use(
     VueGtag,
     {
-      config: { id: "G-FMS9YJCVM8" },
+      config: { id: 'G-FMS9YJCVM8' },
     },
     router
   );
 }
 
-app.mount("#app");
+app.mount('#app');
