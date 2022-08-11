@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
-import { useRoute, RouteRecordName, RouteMeta, RouteLocationNormalizedLoaded } from 'vue-router'
+import { useRoute, RouteRecordName, RouteLocationNormalizedLoaded } from 'vue-router'
 
 import Footer from "@/components/modules/Footer.vue"
 
@@ -66,7 +66,7 @@ const setOtherTags = async (path: string) => {
 </script>
 
 <template>
-  <router-view></router-view>
+  <router-view />
   <Footer />
 </template>
 

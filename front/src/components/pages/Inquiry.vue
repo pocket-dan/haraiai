@@ -37,13 +37,29 @@ async function sendInquiry() {
       <h1>フィードバック</h1>
       <form v-if="!submitted">
         <label for="inquery">内容:</label>
-        <span class="error" v-if="error.isError">{{ error.message }}</span>
-        <textarea id="inquery" v-model="inquiryText"
-                               v-bind:class='{error: error.isError}'
-                               placeholder="要望・改善・感想など何でもお待ちしています"></textarea>
-        <button type="button" @click="sendInquiry">送る</button>
+        <span
+          v-if="error.isError"
+          class="error"
+        >{{ error.message }}</span>
+        <textarea
+          id="inquery"
+          v-model="inquiryText"
+          :class="{error: error.isError}"
+          placeholder="要望・改善・感想など何でもお待ちしています"
+        />
+        <button
+          type="button"
+          @click="sendInquiry"
+        >
+          送る
+        </button>
       </form>
-      <p id="done-message" v-else>ありがとうございました！</p>
+      <p
+        v-else
+        id="done-message"
+      >
+        ありがとうございました！
+      </p>
     </main>
   </div>
 </template>

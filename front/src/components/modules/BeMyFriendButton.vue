@@ -4,7 +4,12 @@
 <template>
   <a href="https://page.line.me/560mkygn">
     <button class="be-my-friend-btn">
-      <img src="@/assets/img/line-round.png" width="30" class="line-logo-img" alt="LINE logo" />
+      <img
+        src="@/assets/img/line-round.png"
+        width="30"
+        class="line-logo-img"
+        alt="LINE logo"
+      >
       友だちに追加
     </button>
   </a>

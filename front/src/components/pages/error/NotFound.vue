@@ -4,7 +4,11 @@
 <template>
   <div class="not-found-page">
     <main>
-      <img src="@/assets/img/not-found.png" width="100" alt="Not Found"/>
+      <img
+        src="@/assets/img/not-found.png"
+        width="100"
+        alt="Not Found"
+      >
       <p> Not Found </p>
     </main>
   </div>

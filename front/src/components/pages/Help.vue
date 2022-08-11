@@ -33,8 +33,12 @@ const FAQs: FAQ[] = [
     <section id="toc">
       <h2>目次</h2>
       <ul>
-        <a v-for="(e, i) in FAQs" :key="i" :href="'#' + questionIdOf(i)">
-          <li >{{ e.question }}</li>
+        <a
+          v-for="(e, i) in FAQs"
+          :key="i"
+          :href="'#' + questionIdOf(i)"
+        >
+          <li>{{ e.question }}</li>
         </a>
       </ul>
     </section>
@@ -42,7 +46,12 @@ const FAQs: FAQ[] = [
     <section id="faq">
       <h2>質問と回答</h2>
       <div class="qa-list">
-        <dl class="qa" v-for="(e, i) in FAQs" :key="i" :id="questionIdOf(i)">
+        <dl
+          v-for="(e, i) in FAQs"
+          :id="questionIdOf(i)"
+          :key="i"
+          class="qa"
+        >
           <dt><li>{{ e.question }}</li></dt>
           <dd>
             <p>{{ e.answer }}</p>
@@ -50,7 +59,11 @@ const FAQs: FAQ[] = [
         </dl>
       </div>
 
-      <p class="note">下記に掲載されていない質問や要望がある方は <router-link to="/inquiry">こちら</router-link> よりお気軽にお問い合わせください</p>
+      <p class="note">
+        下記に掲載されていない質問や要望がある方は <router-link to="/inquiry">
+          こちら
+        </router-link> よりお気軽にお問い合わせください
+      </p>
     </section>
   </div>
 </template>
