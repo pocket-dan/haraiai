@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
-import { useRoute, RouteRecordName, RouteLocationNormalizedLoaded } from 'vue-router'
+import { onMounted, watch } from 'vue';
+import {
+  useRoute,
+  RouteRecordName,
+  RouteLocationNormalizedLoaded,
+} from 'vue-router';
 
-import Footer from "@/components/modules/Footer.vue"
+import Footer from '@/components/modules/Footer.vue';
 
 // import liff from "@line/liff";
 
@@ -21,48 +25,56 @@ import Footer from "@/components/modules/Footer.vue"
 //       console.error("LIFF init failed.", e)
 //     });
 // })
-const route = useRoute()
-const titleSuffix = " - haraiai"
-const siteUrl = "https://haraiai.netlify.app"
+const route = useRoute();
+const titleSuffix = ' - haraiai';
+const siteUrl = 'https://haraiai.netlify.app';
 
 onMounted(async () => {
-  setTags(route)
-})
+  setTags(route);
+});
 
 watch(route, () => {
-  setTags(route)
-})
+  setTags(route);
+});
 
 const setTags = async (route: RouteLocationNormalizedLoaded) => {
-  if (!route.name || !route.meta) return
-  setTitleTags(route.name, route.meta.title)
-  setDescTags(route.meta.desc)
-  setOtherTags(route.path)
-}
+  if (!route.name || !route.meta) return;
+  setTitleTags(route.name, route.meta.title);
+  setDescTags(route.meta.desc);
+  setOtherTags(route.path);
+};
 
 const setTitleTags = async (pageName: RouteRecordName, title: string) => {
-  if (!title) return
+  if (!title) return;
 
-  if (pageName !== "about") {
-    title += titleSuffix
+  if (pageName !== 'about') {
+    title += titleSuffix;
   }
 
-  document.title = title
-  document.querySelector("meta[name='title']")?.setAttribute("content", title)
-  document.querySelector("meta[property='og:title']")?.setAttribute("content", title)
-}
+  document.title = title;
+  document.querySelector("meta[name='title']")?.setAttribute('content', title);
+  document
+    .querySelector("meta[property='og:title']")
+    ?.setAttribute('content', title);
+};
 
 const setDescTags = async (desc: string) => {
-  if (!desc) return
+  if (!desc) return;
 
-  document.querySelector("meta[name='description']")?.setAttribute("content", desc)
-  document.querySelector("meta[property='og:description']")?.setAttribute("content", desc)
-}
+  document
+    .querySelector("meta[name='description']")
+    ?.setAttribute('content', desc);
+  document
+    .querySelector("meta[property='og:description']")
+    ?.setAttribute('content', desc);
+};
 
 const setOtherTags = async (path: string) => {
-  const canonicalUrl = siteUrl + path
-  document.querySelector("link[rel='canonical']")?.setAttribute("href", canonicalUrl)
-}
+  const canonicalUrl = siteUrl + path;
+  document
+    .querySelector("link[rel='canonical']")
+    ?.setAttribute('href', canonicalUrl);
+};
 </script>
 
 <template>
@@ -71,9 +83,10 @@ const setOtherTags = async (path: string) => {
 </template>
 
 <style>
-html, body {
+html,
+body {
   margin: 0;
-  background-color: #F8FAFB;
+  background-color: #f8fafb;
 }
 
 #app {

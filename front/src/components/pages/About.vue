@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
+import BeMyFriendButton from '@/components/modules/BeMyFriendButton.vue';
 </script>
 
 <template>
@@ -40,7 +40,8 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
     >
       <h2>支払い金額を自動で割り勘</h2>
       <p class="desc">
-        お会計をまとめて払った人は、グループに タイトルと金額の2行のメッセージを投稿。<br>
+        お会計をまとめて払った人は、グループに
+        タイトルと金額の2行のメッセージを投稿。<br>
         あとは haraiai が5:5で割り勘してくれます。
       </p>
 
@@ -105,7 +106,7 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
     padding: 30px 30px;
 
     &.gray {
-      background: #F8FAFB;
+      background: #f8fafb;
     }
     &.white {
       background: white;
@@ -115,7 +116,6 @@ import BeMyFriendButton from "@/components/modules/BeMyFriendButton.vue"
       margin-bottom: 30px;
       word-break: keep-all;
     }
-
   }
 }
 </style>

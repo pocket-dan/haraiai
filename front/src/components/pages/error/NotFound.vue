@@ -1,5 +1,4 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <div class="not-found-page">
@@ -9,14 +8,14 @@
         width="100"
         alt="Not Found"
       >
-      <p> Not Found </p>
+      <p>Not Found</p>
     </main>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .not-found-page {
- main {
+  main {
     display: flex;
     justify-content: center;
     align-items: center;

@@ -1,5 +1,4 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <a href="https://page.line.me/560mkygn">
@@ -28,9 +27,9 @@
   font-weight: bold;
   line-height: 1.1rem;
   color: #ffffff;
-  background: #06C755;
+  background: #06c755;
 
-  position:relative;
+  position: relative;
   padding-left: 30px;
 
   .line-logo-img {

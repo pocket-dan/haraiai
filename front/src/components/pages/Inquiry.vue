@@ -1,34 +1,35 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue"
-import api from "@/api/api"
+import { reactive, ref } from 'vue';
+import api from '@/api/api';
 
 const error = reactive({
   isError: false,
-  message: "",
-})
-const submitted = ref(false)
-const inquiryText = ref("")
+  message: '',
+});
+const submitted = ref(false);
+const inquiryText = ref('');
 
 async function sendInquiry() {
-  const text = inquiryText.value
+  const text = inquiryText.value;
   if (text.length === 0) {
-    error.isError = true
-    error.message = "内容を入力してください"
-    return
+    error.isError = true;
+    error.message = '内容を入力してください';
+    return;
   }
 
-  await api.sendInquiry(text)
+  await api
+    .sendInquiry(text)
     .then(() => {
-      error.isError = false
-      submitted.value = true
+      error.isError = false;
+      submitted.value = true;
     })
     .catch((err: Error) => {
-      error.isError = true
-      error.message = "送信に失敗しました。もう一度送信するか、時間を空けてお試しください。"
+      error.isError = true;
+      error.message =
+        '送信に失敗しました。もう一度送信するか、時間を空けてお試しください。';
       console.error(err);
     });
 }
-
 </script>
 
 <template>
@@ -44,7 +45,7 @@ async function sendInquiry() {
         <textarea
           id="inquery"
           v-model="inquiryText"
-          :class="{error: error.isError}"
+          :class="{ error: error.isError }"
           placeholder="要望・改善・感想など何でもお待ちしています"
         />
         <button
@@ -98,18 +99,19 @@ async function sendInquiry() {
     }
 
     textarea.error {
-      border-color: #FF8888;
+      border-color: #ff8888;
     }
 
     button {
       margin: 20px auto 0px;
       appearance: none;
-      background-color: #FAFBFC;
+      background-color: #fafbfc;
       border: 1px solid rgba(27, 31, 35, 0.15);
       border-radius: 6px;
-      box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+      box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0,
+        rgba(255, 255, 255, 0.25) 0 1px 0 inset;
       box-sizing: border-box;
-      color: #24292E;
+      color: #24292e;
       cursor: pointer;
       display: block;
       line-height: 20px;
@@ -119,20 +121,20 @@ async function sendInquiry() {
     }
 
     button:hover {
-      background-color: #F3F4F6;
+      background-color: #f3f4f6;
       text-decoration: none;
       transition-duration: 0.1s;
     }
 
     button:disabled {
-      background-color: #FAFBFC;
+      background-color: #fafbfc;
       border-color: rgba(27, 31, 35, 0.15);
-      color: #959DA5;
+      color: #959da5;
       cursor: default;
     }
 
     button:active {
-      background-color: #EDEFF2;
+      background-color: #edeff2;
       box-shadow: rgba(225, 228, 232, 0.2) 0 1px 0 inset;
       transition: none 0s;
     }

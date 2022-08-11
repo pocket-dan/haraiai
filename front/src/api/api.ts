@@ -1,5 +1,5 @@
-import axios, {AxiosResponse} from "axios";
-import { BACKEND_API_BASE_URL } from "@/config"
+import axios, { AxiosResponse } from 'axios';
+import { BACKEND_API_BASE_URL } from '@/config';
 
 const instance = axios.create({
   baseURL: BACKEND_API_BASE_URL,
@@ -7,9 +7,9 @@ const instance = axios.create({
 });
 
 const sendInquiry = (text: string): Promise<AxiosResponse<void>> => {
-  return instance.post("/NotifyInquiry", { text, })
-}
+  return instance.post('/NotifyInquiry', { text });
+};
 
 export default {
   sendInquiry,
-}
+};

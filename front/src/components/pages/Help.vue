@@ -1,29 +1,28 @@
 <script setup lang="ts">
-
 type FAQ = {
-  question: string
-  answer: string
-}
+  question: string;
+  answer: string;
+};
 
 function questionIdOf(i: number): string {
-  return "Q" + (i+1)
+  return 'Q' + (i + 1);
 }
 
 const FAQs: FAQ[] = [
   {
-    question: "精算はできますか？",
-    answer: "はい、haraiai をお使いのグループで「精算」と送ることで可能です。しかし精算はおすすめしていません。理由は、支払いが少ない側が次回払うようにしてバランスを保つと面倒な精算作業はしなくて済み、お互いが楽だと考えているからです。",
+    question: '精算はできますか？',
+    answer:
+      'はい、haraiai をお使いのグループで「精算」と送ることで可能です。しかし精算はおすすめしていません。理由は、支払いが少ない側が次回払うようにしてバランスを保つと面倒な精算作業はしなくて済み、お互いが楽だと考えているからです。',
   },
   {
-    question: "割り勘の割合を5:5以外に変更することは出来ますか？",
-    answer: "現在、haraiai ではその機能には対応しておりません。",
+    question: '割り勘の割合を5:5以外に変更することは出来ますか？',
+    answer: '現在、haraiai ではその機能には対応しておりません。',
   },
   {
-    question: "3人以上での割り勘は出来ますか？",
-    answer: "現在、haraiai ではその機能には対応しておりません。",
+    question: '3人以上での割り勘は出来ますか？',
+    answer: '現在、haraiai ではその機能には対応しておりません。',
   },
-]
-
+];
 </script>
 
 <template>
@@ -52,7 +51,9 @@ const FAQs: FAQ[] = [
           :key="i"
           class="qa"
         >
-          <dt><li>{{ e.question }}</li></dt>
+          <dt>
+            <li>{{ e.question }}</li>
+          </dt>
           <dd>
             <p>{{ e.answer }}</p>
           </dd>
@@ -60,9 +61,11 @@ const FAQs: FAQ[] = [
       </div>
 
       <p class="note">
-        下記に掲載されていない質問や要望がある方は <router-link to="/inquiry">
+        下記に掲載されていない質問や要望がある方は
+        <router-link to="/inquiry">
           こちら
-        </router-link> よりお気軽にお問い合わせください
+        </router-link>
+        よりお気軽にお問い合わせください
       </p>
     </section>
   </div>
@@ -75,7 +78,7 @@ const FAQs: FAQ[] = [
   padding: 0 40px;
 
   h2 {
-    margin-top: 60px
+    margin-top: 60px;
   }
 
   .note {
