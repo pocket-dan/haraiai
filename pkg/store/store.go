@@ -80,6 +80,8 @@ func (s *StoreImpl) GetGroup(groupID string) (*Group, error) {
 
 // SaveGroup update a group.
 func (s *StoreImpl) SaveGroup(group *Group) error {
+	group.UpdatedAt = nowInJST()
+
 	ctx := context.Background()
 
 	doc := s.client.Collection(GROUP_COLLECTION_ID).Doc(group.ID)
