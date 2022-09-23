@@ -14,7 +14,8 @@ clean:
 
 prepare:
 	cd pkg && \
-		go install github.com/golang/mock/mockgen@v1.6.0
+		go install github.com/golang/mock/mockgen@v1.6.0 && \
+		go install github.com/haveyoudebuggedit/gotestfmt/v2/cmd/gotestfmt@latest
 
 generate:
 	cd pkg && rm -rf mock && go generate ./...
@@ -23,7 +24,7 @@ test: generate
 	cd pkg && PHASE=test gotest -v ./...
 
 ci-test: prepare build generate
-	cd pkg && PHASE=test go test -v ./...
+	cd pkg && PHASE=test go test -json ./... | tee /tmp/gotest.log | gotestfmt
 
 develop:
 	cd tool/develop && PHASE=local go run main.go
