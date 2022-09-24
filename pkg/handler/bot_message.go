@@ -228,10 +228,7 @@ func (bh *BotHandlerImpl) addNewMember(event *linebot.Event, group *store.Group,
 	memberName = strings.Trim(memberName, " \n")
 
 	senderID := event.Source.UserID
-	group.Members[senderID] = store.User{
-		ID:   senderID,
-		Name: memberName,
-	}
+	group.Members[senderID] = *store.NewUser(senderID, memberName, 0)
 
 	if len(group.Members) == 2 {
 		group.Status = store.GROUP_STARTED
@@ -331,6 +328,7 @@ func (bh *BotHandlerImpl) replyEvenUpComplete(
 	}
 
 	whoPayLess.PayAmount = whoPayALot.PayAmount
+	whoPayLess.Touch()
 	group.Members[whoPayLess.ID] = *whoPayLess
 
 	if err := bh.store.SaveGroup(group); err != nil {
@@ -353,6 +351,7 @@ func (bh *BotHandlerImpl) addNewPayment(event *linebot.Event, group *store.Group
 	}
 
 	sender.PayAmount += int64(payAmount)
+	sender.Touch()
 
 	group.Members[sender.ID] = sender
 

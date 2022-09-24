@@ -6,6 +6,7 @@ replace github.com/raahii/haraiai/pkg => ../../pkg
 
 require (
 	cloud.google.com/go/firestore v1.6.1
+	github.com/Songmu/flextime v0.1.0
 	github.com/golang/mock v1.6.0
 	github.com/line/line-bot-sdk-go/v7 v7.16.0
 	github.com/nikoksr/notify v0.27.0

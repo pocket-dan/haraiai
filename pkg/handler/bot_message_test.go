@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
@@ -22,13 +23,14 @@ const (
 )
 
 var (
-	DEFAULT_GROUP = store.NewGroup(
+	JST                = time.FixedZone("Asia/Tokyo", 9*60*60)
+	TIME_GROUP_CREATED = time.Date(2020, time.January, 1, 1, 0, 0, 0, JST)
+	// TIME_NOW           = time.Date(2022, time.August, 1, 1, 0, 0, 0, JST)
+
+	DEFAULT_GROUP = newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{
-			{ID: WARIO_ID, Name: "わり夫", PayAmount: 0},
-			{ID: WARIKO_ID, Name: "わり子", PayAmount: 0},
-		},
+		[]store.User{newWarioUser(0), newWarikoUser(0)},
 	)
 )
 
@@ -41,7 +43,7 @@ func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
 	s := mock.NewMockStore(ctrl)
 	target := BotHandlerImpl{config: c, bot: b, store: s}
 
-	group := store.NewGroup(
+	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_CREATED,
 		[]store.User{},
@@ -91,11 +93,10 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 	s := mock.NewMockStore(ctrl)
 	target := BotHandlerImpl{config: c, bot: b, store: s}
 
-	firstPerson := store.NewUser("uidx", "わり夫", int64(0))
-	group := store.NewGroup(
+	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_CREATED,
-		[]store.User{*firstPerson},
+		[]store.User{newWarioUser(0)},
 	)
 
 	// Expect to reply text message.
@@ -108,6 +109,7 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 			assert.Len(t, messages, 2)
 			assert.Equal(t, linebot.NewTextMessage(expectedMessage), messages[0])
 			assert.Equal(t, READY_TO_START_MESSAGES[0], messages[1])
+			assert.Equal(t, TIME_GROUP_CREATED, group.CreatedAt)
 		})
 
 	// Expect to save new group.
@@ -143,13 +145,10 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 	s := mock.NewMockStore(ctrl)
 	target := BotHandlerImpl{config: c, bot: b, store: s}
 
-	group := store.NewGroup(
+	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{
-			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
-			{ID: WARIKO_ID, Name: "わり子", PayAmount: 5000},
-		},
+		[]store.User{newWarioUser(1000), newWarikoUser(5000)},
 	)
 
 	s.
@@ -188,13 +187,10 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 	s := mock.NewMockStore(ctrl)
 	target := BotHandlerImpl{config: c, bot: b, store: s}
 
-	group := store.NewGroup(
+	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{
-			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
-			{ID: WARIKO_ID, Name: "わり子", PayAmount: 5000},
-		},
+		[]store.User{newWarioUser(1000), newWarikoUser(5000)},
 	)
 
 	s.
@@ -208,11 +204,14 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 		SaveGroup(gomock.Any()).
 		Do(func(newGroup *store.Group) {
 			assert.Equal(t, group.ID, newGroup.ID)
-
 			assert.Len(t, newGroup.Members, 2)
+			assert.Equal(t, TIME_GROUP_CREATED, group.CreatedAt)
 
-			expectedWario := store.User{ID: WARIO_ID, Name: "わり夫", PayAmount: 2000}
-			assert.Equal(t, expectedWario, newGroup.Members[WARIO_ID])
+			expectedWario := newWarioUser(2000)
+			actual := newGroup.Members[WARIO_ID]
+			assert.Equal(t, expectedWario.ID, actual.ID)
+			assert.Equal(t, expectedWario.Name, actual.Name)
+			assert.Equal(t, expectedWario.PayAmount, actual.PayAmount)
 
 			assert.Equal(t, group.Members[WARIKO_ID], newGroup.Members[WARIKO_ID])
 		}).
@@ -249,13 +248,10 @@ func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
 	s := mock.NewMockStore(ctrl)
 	target := BotHandlerImpl{config: c, bot: b, store: s}
 
-	group := store.NewGroup(
+	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{
-			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
-			{ID: WARIKO_ID, Name: "わり子", PayAmount: 5000},
-		},
+		[]store.User{newWarioUser(1000), newWarikoUser(5000)},
 	)
 
 	// Mock and check GetGroup method call.
@@ -303,13 +299,10 @@ func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
 	s := mock.NewMockStore(ctrl)
 	target := BotHandlerImpl{config: c, bot: b, store: s}
 
-	group := store.NewGroup(
+	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{
-			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
-			{ID: WARIKO_ID, Name: "わり子", PayAmount: 1000},
-		},
+		[]store.User{newWarioUser(1000), newWarikoUser(1000)},
 	)
 
 	// Mock and check GetGroup method call.
@@ -351,13 +344,10 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 	s := mock.NewMockStore(ctrl)
 	target := BotHandlerImpl{config: c, bot: b, store: s}
 
-	group := store.NewGroup(
+	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{
-			{ID: WARIO_ID, Name: "わり夫", PayAmount: 1000},
-			{ID: WARIKO_ID, Name: "わり子", PayAmount: 4000},
-		},
+		[]store.User{newWarioUser(1000), newWarikoUser(4000)},
 	)
 
 	// Mock and check GetGroup method call.
@@ -508,5 +498,43 @@ func newTextMessage(message string) *linebot.TextMessage {
 		ID:     "text message ID",
 		Text:   message,
 		Emojis: []*linebot.Emoji{},
+	}
+}
+
+func newTestGroup(ID string, status store.GroupStatus, members []store.User) *store.Group {
+	g := new(store.Group)
+	g.ID = ID
+	g.Status = status
+	g.IsTutorial = false
+
+	g.Members = make(map[string]store.User, len(members))
+	for _, u := range members {
+		g.Members[u.ID] = u
+	}
+
+	g.CreatedAt = TIME_GROUP_CREATED
+	g.UpdatedAt = TIME_GROUP_CREATED
+
+	return g
+}
+
+// TODO: It's not easy to distinguish 'Wario' and 'Wariko', shold be renamed.
+func newWarioUser(payAmount int64) store.User {
+	return store.User{
+		ID:        WARIO_ID,
+		Name:      "わり夫",
+		PayAmount: payAmount,
+		CreatedAt: TIME_GROUP_CREATED,
+		UpdatedAt: TIME_GROUP_CREATED,
+	}
+}
+
+func newWarikoUser(payAmount int64) store.User {
+	return store.User{
+		ID:        WARIKO_ID,
+		Name:      "わり子",
+		PayAmount: payAmount,
+		CreatedAt: TIME_GROUP_CREATED,
+		UpdatedAt: TIME_GROUP_CREATED,
 	}
 }
