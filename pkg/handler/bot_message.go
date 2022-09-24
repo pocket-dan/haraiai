@@ -328,6 +328,7 @@ func (bh *BotHandlerImpl) replyEvenUpComplete(
 	}
 
 	whoPayLess.PayAmount = whoPayALot.PayAmount
+	whoPayLess.Touch()
 	group.Members[whoPayLess.ID] = *whoPayLess
 
 	if err := bh.store.SaveGroup(group); err != nil {
