@@ -1,16 +1,14 @@
 package store
 
-import "time"
+import (
+	"time"
 
-var JST *time.Location
+	"github.com/Songmu/flextime"
+)
 
-func init() {
-	var err error
-	JST, err = time.LoadLocation("Asia/Tokyo")
-	if err != nil {
-		panic(err)
-	}
-}
+var (
+	JST = time.FixedZone("Asia/Tokyo", 9*60*60)
+)
 
 type Group struct {
 	ID         string          `json:"id"`
@@ -39,6 +37,9 @@ func NewGroup(ID string, status GroupStatus, members []User) *Group {
 	for _, u := range members {
 		g.Members[u.ID] = u
 	}
+
+	g.CreatedAt = nowInJST()
+	g.UpdatedAt = nowInJST()
 
 	return g
 }
@@ -69,5 +70,5 @@ func (u *User) Touch() {
 
 func nowInJST() time.Time {
 	// TZ environment variable is set, but also set in code.
-	return time.Now().In(JST)
+	return flextime.Now().In(JST)
 }
