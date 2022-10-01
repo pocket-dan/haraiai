@@ -30,7 +30,7 @@ var (
 	DEFAULT_GROUP = newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newTaroUser(0), newHanakoUser(0)},
+		[]*store.User{newTaroUser(0), newHanakoUser(0)},
 	)
 )
 
@@ -46,7 +46,7 @@ func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_CREATED,
-		[]store.User{},
+		[]*store.User{},
 	)
 
 	// Expect to reply text message.
@@ -96,7 +96,7 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_CREATED,
-		[]store.User{newTaroUser(0)},
+		[]*store.User{newTaroUser(0)},
 	)
 
 	// Expect to reply text message.
@@ -148,7 +148,7 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newTaroUser(1000), newHanakoUser(5000)},
+		[]*store.User{newTaroUser(1000), newHanakoUser(5000)},
 	)
 
 	s.
@@ -190,7 +190,7 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newTaroUser(1000), newHanakoUser(5000)},
+		[]*store.User{newTaroUser(1000), newHanakoUser(5000)},
 	)
 
 	s.
@@ -251,7 +251,7 @@ func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newTaroUser(1000), newHanakoUser(5000)},
+		[]*store.User{newTaroUser(1000), newHanakoUser(5000)},
 	)
 
 	// Mock and check GetGroup method call.
@@ -302,7 +302,7 @@ func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newTaroUser(1000), newHanakoUser(1000)},
+		[]*store.User{newTaroUser(1000), newHanakoUser(1000)},
 	)
 
 	// Mock and check GetGroup method call.
@@ -347,7 +347,7 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newTaroUser(1000), newHanakoUser(4000)},
+		[]*store.User{newTaroUser(1000), newHanakoUser(4000)},
 	)
 
 	// Mock and check GetGroup method call.
@@ -501,13 +501,13 @@ func newTextMessage(message string) *linebot.TextMessage {
 	}
 }
 
-func newTestGroup(ID string, status store.GroupStatus, members []store.User) *store.Group {
+func newTestGroup(ID string, status store.GroupStatus, members []*store.User) *store.Group {
 	g := new(store.Group)
 	g.ID = ID
 	g.Status = status
 	g.IsTutorial = false
 
-	g.Members = make(map[string]store.User, len(members))
+	g.Members = make(map[string]*store.User, len(members))
 	for _, u := range members {
 		g.Members[u.ID] = u
 	}
@@ -518,8 +518,8 @@ func newTestGroup(ID string, status store.GroupStatus, members []store.User) *st
 	return g
 }
 
-func newTaroUser(payAmount int64) store.User {
-	return store.User{
+func newTaroUser(payAmount int64) *store.User {
+	return &store.User{
 		ID:        TARO_ID,
 		Name:      "太郎",
 		PayAmount: payAmount,
@@ -528,8 +528,8 @@ func newTaroUser(payAmount int64) store.User {
 	}
 }
 
-func newHanakoUser(payAmount int64) store.User {
-	return store.User{
+func newHanakoUser(payAmount int64) *store.User {
+	return &store.User{
 		ID:        HANAKO_ID,
 		Name:      "花子",
 		PayAmount: payAmount,

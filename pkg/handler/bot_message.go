@@ -228,7 +228,7 @@ func (bh *BotHandlerImpl) addNewMember(event *linebot.Event, group *store.Group,
 	memberName = strings.Trim(memberName, " \n")
 
 	senderID := event.Source.UserID
-	group.Members[senderID] = *store.NewUser(senderID, memberName, 0)
+	group.Members[senderID] = store.NewUser(senderID, memberName, 0)
 
 	if len(group.Members) == 2 {
 		group.Status = store.GROUP_STARTED
@@ -261,7 +261,7 @@ func (bh *BotHandlerImpl) replyTotalUpResult(
 	replyMessages := []linebot.SendingMessage{}
 
 	replyMessages = append(replyMessages, linebot.NewTextMessage(
-		createPayAmountResultMessage(mapToList(group.Members)),
+		createPayAmountResultMessage(extractSortedUsers(group.Members)),
 	))
 
 	if group.IsTutorial {
@@ -285,11 +285,10 @@ func (bh *BotHandlerImpl) replyEvenUpConfirmation(
 	event *linebot.Event,
 	group *store.Group,
 ) error {
-	members := mapToList(group.Members)
+	members := extractSortedUsers(group.Members)
 	sortUsersByPayAmountDesc(members)
 
-	whoPayALot := &members[0]
-	whoPayLess := &members[1]
+	whoPayALot, whoPayLess := members[0], members[1]
 
 	replyMessages := []linebot.SendingMessage{}
 	if whoPayALot.PayAmount == whoPayLess.PayAmount {
@@ -318,10 +317,9 @@ func (bh *BotHandlerImpl) replyEvenUpComplete(
 	event *linebot.Event,
 	group *store.Group,
 ) error {
-	members := mapToList(group.Members)
+	members := extractSortedUsers(group.Members)
 	sortUsersByPayAmountDesc(members)
-	whoPayALot := &members[0]
-	whoPayLess := &members[1]
+	whoPayALot, whoPayLess := members[0], members[1]
 
 	if whoPayALot.PayAmount == whoPayLess.PayAmount {
 		return nil
@@ -329,7 +327,6 @@ func (bh *BotHandlerImpl) replyEvenUpComplete(
 
 	whoPayLess.PayAmount = whoPayALot.PayAmount
 	whoPayLess.Touch()
-	group.Members[whoPayLess.ID] = *whoPayLess
 
 	if err := bh.store.SaveGroup(group); err != nil {
 		return err
@@ -352,8 +349,6 @@ func (bh *BotHandlerImpl) addNewPayment(event *linebot.Event, group *store.Group
 
 	sender.PayAmount += int64(payAmount)
 	sender.Touch()
-
-	group.Members[sender.ID] = sender
 
 	if err := bh.store.SaveGroup(group); err != nil {
 		return fmt.Errorf("failed to update group: %w", err)
@@ -410,7 +405,7 @@ func extractPayAmount(text string) (int, error) {
 	return value, nil
 }
 
-func createPayAmountResultMessage(members []store.User) string {
+func createPayAmountResultMessage(members []*store.User) string {
 	lines := []string{TOTAL_UP_PREFIX}
 	for _, u := range members {
 		lines = append(lines, fmt.Sprintf("%s: %d円", u.Name, u.PayAmount))
@@ -418,8 +413,7 @@ func createPayAmountResultMessage(members []store.User) string {
 	lines = append(lines, "")
 
 	sortUsersByPayAmountDesc(members)
-	whoPayALot := &members[0]
-	whoPayLess := &members[1]
+	whoPayALot, whoPayLess := members[0], members[1]
 
 	var text string
 	if whoPayALot.PayAmount == whoPayLess.PayAmount {
@@ -435,16 +429,14 @@ func createPayAmountResultMessage(members []store.User) string {
 	return strings.Join(lines, "\n")
 }
 
-func sortUsersByPayAmountDesc(users []store.User) {
+func sortUsersByPayAmountDesc(users []*store.User) {
 	sort.SliceStable(users, func(i, j int) bool {
 		return users[i].PayAmount > users[j].PayAmount
 	})
 }
 
-func mapToList(m map[string]store.User) []store.User {
-	// TODO: rewrite to generics method and move to common package
-
-	v := make([]store.User, 0, len(m))
+func extractSortedUsers(m map[string]*store.User) []*store.User {
+	v := make([]*store.User, 0, len(m))
 	for _, e := range m {
 		v = append(v, e)
 	}
