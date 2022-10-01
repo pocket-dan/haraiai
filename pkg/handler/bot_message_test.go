@@ -18,8 +18,8 @@ const (
 	SENDER_ID string = "uid1"
 	GROUP_ID  string = "gid1"
 
-	WARIO_ID  string = "wario ID"
-	WARIKO_ID string = "wariko ID"
+	TARO_ID   string = "taro"
+	HANAKO_ID string = "hanako"
 )
 
 var (
@@ -30,7 +30,7 @@ var (
 	DEFAULT_GROUP = newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newWarioUser(0), newWarikoUser(0)},
+		[]store.User{newTaroUser(0), newHanakoUser(0)},
 	)
 )
 
@@ -50,7 +50,7 @@ func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
 	)
 
 	// Expect to reply text message.
-	expectedMessage := "わり夫さんだね！👍"
+	expectedMessage := "太郎さんだね！👍"
 	b.
 		EXPECT().
 		ReplyMessage(REPLY_TOKEN, gomock.Any()).
@@ -73,13 +73,13 @@ func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
 			newUser, exists := newGroup.Members[SENDER_ID]
 			assert.True(t, exists)
 			assert.Equal(t, SENDER_ID, newUser.ID)
-			assert.Equal(t, "わり夫", newUser.Name)
+			assert.Equal(t, "太郎", newUser.Name)
 			assert.Equal(t, int64(0), newUser.PayAmount)
 		})
 
 		// Test handler.handleTextMessage call.
 	event := newTestMessageEvent(REPLY_TOKEN, linebot.EventSourceTypeGroup, GROUP_ID, SENDER_ID)
-	err := target.addNewMember(event, group, "わり夫だよ")
+	err := target.addNewMember(event, group, "太郎だよ")
 
 	assert.Nil(t, err)
 }
@@ -96,11 +96,11 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_CREATED,
-		[]store.User{newWarioUser(0)},
+		[]store.User{newTaroUser(0)},
 	)
 
 	// Expect to reply text message.
-	expectedMessage := "わり子さんだね！👍"
+	expectedMessage := "花子さんだね！👍"
 	b.
 		EXPECT().
 		ReplyMessage(REPLY_TOKEN, gomock.Any()).
@@ -125,13 +125,13 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 			newUser, exists := newGroup.Members[SENDER_ID]
 			assert.True(t, exists)
 			assert.Equal(t, SENDER_ID, newUser.ID)
-			assert.Equal(t, "わり子", newUser.Name)
+			assert.Equal(t, "花子", newUser.Name)
 			assert.Equal(t, int64(0), newUser.PayAmount)
 		})
 
 		// Test handler.handleTextMessage call.
 	event := newTestMessageEvent(REPLY_TOKEN, linebot.EventSourceTypeGroup, GROUP_ID, SENDER_ID)
-	err := target.addNewMember(event, group, "わり子だよ")
+	err := target.addNewMember(event, group, "花子だよ")
 
 	assert.Nil(t, err)
 }
@@ -148,7 +148,7 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newWarioUser(1000), newWarikoUser(5000)},
+		[]store.User{newTaroUser(1000), newHanakoUser(5000)},
 	)
 
 	s.
@@ -157,7 +157,7 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 		Return(group, nil).
 		Times(1)
 
-	expectedMessage := "支払った総額は...\nわり夫: 1000円\nわり子: 5000円\n\nわり子さんが 2000 円多く払っているよ。次はわり夫さんが払うと距離が縮まるね🤝"
+	expectedMessage := "支払った総額は...\n太郎: 1000円\n花子: 5000円\n\n花子さんが 2000 円多く払っているよ。次は太郎さんが払うと距離が縮まるね🤝"
 	b.
 		EXPECT().
 		ReplyMessage(REPLY_TOKEN, gomock.Any()).
@@ -190,7 +190,7 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newWarioUser(1000), newWarikoUser(5000)},
+		[]store.User{newTaroUser(1000), newHanakoUser(5000)},
 	)
 
 	s.
@@ -207,13 +207,13 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 			assert.Len(t, newGroup.Members, 2)
 			assert.Equal(t, TIME_GROUP_CREATED, group.CreatedAt)
 
-			expectedWario := newWarioUser(2000)
-			actual := newGroup.Members[WARIO_ID]
+			expectedWario := newTaroUser(2000)
+			actual := newGroup.Members[TARO_ID]
 			assert.Equal(t, expectedWario.ID, actual.ID)
 			assert.Equal(t, expectedWario.Name, actual.Name)
 			assert.Equal(t, expectedWario.PayAmount, actual.PayAmount)
 
-			assert.Equal(t, group.Members[WARIKO_ID], newGroup.Members[WARIKO_ID])
+			assert.Equal(t, group.Members[HANAKO_ID], newGroup.Members[HANAKO_ID])
 		}).
 		Times(1)
 
@@ -231,7 +231,7 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 		REPLY_TOKEN,
 		linebot.EventSourceTypeGroup,
 		group.ID,
-		WARIO_ID,
+		TARO_ID,
 	)
 	message := newTextMessage("スタバ\n1000円")
 	err := target.handleTextMessage(event, message)
@@ -251,7 +251,7 @@ func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newWarioUser(1000), newWarikoUser(5000)},
+		[]store.User{newTaroUser(1000), newHanakoUser(5000)},
 	)
 
 	// Mock and check GetGroup method call.
@@ -263,7 +263,7 @@ func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
 
 	// Check reply message.
 	expectedTextMessage := linebot.NewTextMessage(
-		"わり夫さんはわり子さんに 2000 円渡してね🙏",
+		"太郎さんは花子さんに 2000 円渡してね🙏",
 	)
 
 	b.
@@ -282,7 +282,7 @@ func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
 		REPLY_TOKEN,
 		linebot.EventSourceTypeGroup,
 		group.ID,
-		WARIO_ID,
+		TARO_ID,
 	)
 	message := newTextMessage("精算")
 	err := target.handleTextMessage(event, message)
@@ -302,7 +302,7 @@ func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newWarioUser(1000), newWarikoUser(1000)},
+		[]store.User{newTaroUser(1000), newHanakoUser(1000)},
 	)
 
 	// Mock and check GetGroup method call.
@@ -327,7 +327,7 @@ func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
 		REPLY_TOKEN,
 		linebot.EventSourceTypeGroup,
 		group.ID,
-		WARIO_ID,
+		TARO_ID,
 	)
 	message := newTextMessage("精算")
 	err := target.handleTextMessage(event, message)
@@ -347,7 +347,7 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 	group := newTestGroup(
 		GROUP_ID,
 		store.GROUP_STARTED,
-		[]store.User{newWarioUser(1000), newWarikoUser(4000)},
+		[]store.User{newTaroUser(1000), newHanakoUser(4000)},
 	)
 
 	// Mock and check GetGroup method call.
@@ -367,7 +367,7 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 			assert.Equal(t, store.GROUP_STARTED, newGroup.Status)
 			assert.Len(t, newGroup.Members, 2)
 
-			wario, exists := newGroup.Members[WARIKO_ID]
+			wario, exists := newGroup.Members[HANAKO_ID]
 			assert.True(t, exists)
 			assert.Equal(t, int64(4000), wario.PayAmount)
 		})
@@ -387,7 +387,7 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 		REPLY_TOKEN,
 		linebot.EventSourceTypeGroup,
 		group.ID,
-		WARIO_ID,
+		TARO_ID,
 	)
 	message := newTextMessage("精算完了")
 	err := target.handleTextMessage(event, message)
@@ -436,7 +436,7 @@ func TestHandleHelpMessage_success(t *testing.T) {
 		REPLY_TOKEN,
 		linebot.EventSourceTypeGroup,
 		GROUP_ID,
-		WARIO_ID,
+		TARO_ID,
 	)
 	message := newTextMessage("ヘルプ")
 	err := target.handleTextMessage(event, message)
@@ -518,21 +518,20 @@ func newTestGroup(ID string, status store.GroupStatus, members []store.User) *st
 	return g
 }
 
-// TODO: It's not easy to distinguish 'Wario' and 'Wariko', shold be renamed.
-func newWarioUser(payAmount int64) store.User {
+func newTaroUser(payAmount int64) store.User {
 	return store.User{
-		ID:        WARIO_ID,
-		Name:      "わり夫",
+		ID:        TARO_ID,
+		Name:      "太郎",
 		PayAmount: payAmount,
 		CreatedAt: TIME_GROUP_CREATED,
 		UpdatedAt: TIME_GROUP_CREATED,
 	}
 }
 
-func newWarikoUser(payAmount int64) store.User {
+func newHanakoUser(payAmount int64) store.User {
 	return store.User{
-		ID:        WARIKO_ID,
-		Name:      "わり子",
+		ID:        HANAKO_ID,
+		Name:      "花子",
 		PayAmount: payAmount,
 		CreatedAt: TIME_GROUP_CREATED,
 		UpdatedAt: TIME_GROUP_CREATED,
