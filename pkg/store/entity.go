@@ -11,12 +11,12 @@ var (
 )
 
 type Group struct {
-	ID         string          `json:"id"`
-	Members    map[string]User `json:"members"` // TODO: Change type to map[string]*User.
-	Status     GroupStatus     `json:"status"`
-	IsTutorial bool            `json:"is_tutorial"`
-	CreatedAt  time.Time       `json:"created_at"`
-	UpdatedAt  time.Time       `json:"updated_at"`
+	ID         string           `json:"id"`
+	Members    map[string]*User `json:"members"`
+	Status     GroupStatus      `json:"status"`
+	IsTutorial bool             `json:"is_tutorial"`
+	CreatedAt  time.Time        `json:"created_at"`
+	UpdatedAt  time.Time        `json:"updated_at"`
 }
 
 type GroupStatus string
@@ -26,17 +26,13 @@ const (
 	GROUP_STARTED GroupStatus = "GROUP_STARTED"
 )
 
-// TODO: Members parameter is not necessary.
-func NewGroup(ID string, status GroupStatus, members []User) *Group {
+func NewGroup(ID string, status GroupStatus) *Group {
 	g := new(Group)
 	g.ID = ID
 	g.Status = status
 	g.IsTutorial = false
 
-	g.Members = make(map[string]User, len(members))
-	for _, u := range members {
-		g.Members[u.ID] = u
-	}
+	g.Members = map[string]*User{}
 
 	g.CreatedAt = nowInJST()
 	g.UpdatedAt = nowInJST()

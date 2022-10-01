@@ -35,7 +35,6 @@ func (bh *BotHandlerImpl) handleBotJoin(event *linebot.Event) error {
 	group := store.NewGroup(
 		event.Source.GroupID,
 		store.GROUP_CREATED,
-		[]store.User{},
 	)
 
 	err := bh.store.SaveGroup(group)
