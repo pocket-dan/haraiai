@@ -4,7 +4,7 @@ import "github.com/line/line-bot-sdk-go/v7/linebot"
 
 const (
 
-// GOOD_BYE_MESSAGE_TEXT string = `このグループに関する割り勘データを削除しました。また何かあったら呼んでね`
+// GOOD_BYE_MESSAGE_TEXT string = `このグループに関するデータを削除しました。また何かあったら呼んでね`
 )
 
 var (

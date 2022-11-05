@@ -6,7 +6,7 @@ import (
 
 var (
 	FOLLOW_REPLYS []linebot.SendingMessage = []linebot.SendingMessage{
-		linebot.NewTextMessage("友だち追加ありがとうございます。haraiai は二人の割り勘をサポートするアプリです🤝"),
+		linebot.NewTextMessage("友だち追加ありがとうございます。haraiai は二人の折半をサポートするアプリです🤝"),
 		linebot.NewTextMessage("はじめるには、一緒に使う相手と haraiai の3人のグループを作ってね！"),
 	}
 )

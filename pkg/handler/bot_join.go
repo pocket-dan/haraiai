@@ -13,7 +13,7 @@ const (
 var (
 	JOIN_REPLYS []linebot.SendingMessage = []linebot.SendingMessage{
 		linebot.NewTextMessage(
-			"招待ありがとう！haraiai が二人の割り勘をサポートするよ🤝\n\n" +
+			"招待ありがとう！haraiai が二人の折半をサポートするよ🤝\n\n" +
 				"まずは2人のニックネームを教えてね。短いときれいに表示できるよ！",
 		),
 		linebot.NewTextMessage("○○だよ"),

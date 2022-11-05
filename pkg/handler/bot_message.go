@@ -77,7 +77,7 @@ const (
 
 var (
 	READY_TO_START_MESSAGES = []linebot.SendingMessage{
-		linebot.NewTextMessage("2人の名前を登録したよ、ありがとう！割り勘をはじめられるよ。").
+		linebot.NewTextMessage("2人の名前を登録したよ、ありがとう！折半をはじめられるよ。").
 			WithQuickReplies(linebot.NewQuickReplyItems(
 				linebot.NewQuickReplyButton(
 					"",
@@ -88,7 +88,7 @@ var (
 
 	TUTORIAL_REPLYS_1 = []linebot.SendingMessage{
 		linebot.NewTextMessage("使い方を説明するよ！\n" +
-			"割り勘したいときは、まとめて支払った人が「タイトル」と「金額」の2行のメッセージを送ってね！"),
+			"折半したい支払いを記録するときは、まとめて支払った人が「タイトル」と「金額」の2行のメッセージを送ってね！"),
 		linebot.NewTextMessage(TUTORIAL_PAYMENT_MESSAGE).
 			WithQuickReplies(linebot.NewQuickReplyItems(
 				linebot.NewQuickReplyButton(
