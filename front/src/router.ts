@@ -21,7 +21,7 @@ const routes = [
     component: AboutPage,
     meta: {
       title: 'haraiai - 払い合い',
-      desc: 'LINEアプリ上で2人で使える精算しない割り勘サービス ',
+      desc: 'LINE上ですぐに使えるカップルのための折半アプリ ',
     },
   },
   {

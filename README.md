@@ -3,7 +3,7 @@
 </div>
 <h2 align="center">haraiai - 払い合い</h2>
 <p align="center">
-  LINEアプリ上で <b>2人で使える割り勘アプリ</b> です。<br />
+  LINE上ですぐに使えるカップルのための折半アプリです。<br />
   LINE Bot でみなさんの「払い合い」をサポートします。
 </p>
 <div align="center"></div>

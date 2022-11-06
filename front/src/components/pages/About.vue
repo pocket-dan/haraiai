@@ -13,7 +13,8 @@ import BeMyFriendButton from '@/components/modules/BeMyFriendButton.vue';
       >
       <h1>haraiai - 払い合い</h1>
       <p class="desc">
-        2人で使える<br>「精算しない」シンプルな 割り勘サービス
+        LINE上ですぐに使える <br />
+        カップルのための折半アプリ
       </p>
       <BeMyFriendButton />
     </section>
@@ -22,10 +23,10 @@ import BeMyFriendButton from '@/components/modules/BeMyFriendButton.vue';
       id="feature1"
       class="white feature"
     >
-      <h2>LINE上ですぐに始められる</h2>
+      <h2>LINE上で手軽に使える</h2>
       <p class="desc">
-        はじめ方は簡単。一緒に使う相手と haraiai の3人のグループを作るだけ。<br>
-        面倒なアプリのインストールなく、 すぐにはじめられます。
+        はじめ方は簡単。グループを作って<br />相手 と haraiai を追加するだけ。<br>
+        アプリのインストールや会員登録なしで すぐに始められます。
       </p>
 
       <img
@@ -38,11 +39,10 @@ import BeMyFriendButton from '@/components/modules/BeMyFriendButton.vue';
       id="feature2"
       class="gray feature"
     >
-      <h2>支払い金額を自動で割り勘</h2>
+      <h2>支払い金額を自動で折半</h2>
       <p class="desc">
-        お会計をまとめて払った人は、グループに
-        タイトルと金額の2行のメッセージを投稿。<br>
-        あとは haraiai が5:5で割り勘してくれます。
+        あとはグループに支払いを記録するだけ。
+        haraiai が自動で折半し、支払い総額も教えてくれます。
       </p>
 
       <img
@@ -58,8 +58,9 @@ import BeMyFriendButton from '@/components/modules/BeMyFriendButton.vue';
     >
       <h2>退屈な精算はもうしない</h2>
       <p class="desc">
-        その精算、本当に必要ですか？ <br>
-        支払いが少ない側は、 次回多めに払うことで バランスを保ちましょう。
+        面倒な定期精算をなくして払い合いませんか？
+        そんな気持ちが名前に込められています。
+        支払いが少ない側が次は払うことで 総支払い額が釣り合うようにしましょう！
       </p>
 
       <img
