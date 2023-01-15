@@ -14,6 +14,7 @@ require (
 	cloud.google.com/go/compute v1.6.1 // indirect
 	cloud.google.com/go/firestore v1.6.1 // indirect
 	cloud.google.com/go/functions v1.0.0 // indirect
+	github.com/Songmu/flextime v0.1.0 // indirect
 	github.com/cloudevents/sdk-go/v2 v2.6.1 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

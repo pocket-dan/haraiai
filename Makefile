@@ -15,7 +15,7 @@ clean:
 prepare:
 	cd pkg && \
 		go install github.com/golang/mock/mockgen@v1.6.0 && \
-		go install github.com/haveyoudebuggedit/gotestfmt/v2/cmd/gotestfmt@latest
+		go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
 
 generate:
 	cd pkg && rm -rf mock && go generate ./...
