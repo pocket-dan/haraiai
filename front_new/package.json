@@ -12,6 +12,7 @@
     "format": "prettier -w ."
   },
   "dependencies": {
+    "@astrojs/partytown": "^1.0.3",
     "astro": "^2.0.1"
   },
   "devDependencies": {
