@@ -3,10 +3,14 @@ import { pageUrlOf, siteName } from "@/common.ts";
 import Footer from "@/components/Footer.astro";
 
 export interface Props {
-  title: string;
+  title: string | null;
   description: string;
   path: string;
 }
+
+const createTitle = (pageTitle: string | null): string => {
+  return pageTitle ? `${pageTitle} | ${siteName}` : siteName;
+};
 
 const { title, description, path } = Astro.props;
 const pageUrl = pageUrlOf(path);
@@ -19,7 +23,7 @@ const pageUrl = pageUrlOf(path);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" />
 
-    <title>{title}</title>
+    <title>{createTitle(title)}</title>
 
     <meta name="generator" content={Astro.generator} />
     <meta name="title" content={title} />
