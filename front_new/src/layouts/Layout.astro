@@ -1,6 +1,6 @@
 ---
-import { pageUrlOf, siteName } from "@/common.ts"
-import Footer from "@/components/footer.astro"
+import { pageUrlOf, siteName } from "@/common.ts";
+import Footer from "@/components/footer.astro";
 
 export interface Props {
   title: string;
@@ -32,17 +32,33 @@ const pageUrl = pageUrlOf(path);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={pageUrl} />
     <meta property="og:site_name" content={siteName} />
-    <meta property="og:image" content="https://haraiai.netlify.app/logo-ogp.png" />
+    <meta
+      property="og:image"
+      content="https://haraiai.netlify.app/logo-ogp.png"
+    />
     <meta name="twitter:card" content="summary" />
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic&display=swap"></noscript>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic&display=swap"
+      /></noscript
+    >
 
     <!-- Google site verification -->
-    <meta name="google-site-verification" content="BFYPlt_zIMeP0-p5C2PvUMfLEp07wl8GpGpj7llQH4M" />
+    <meta
+      name="google-site-verification"
+      content="BFYPlt_zIMeP0-p5C2PvUMfLEp07wl8GpGpj7llQH4M"
+    />
   </head>
   <body>
     <slot />
@@ -53,11 +69,16 @@ const pageUrl = pageUrlOf(path);
 <style is:global>
   :root {
     --accent: 124, 58, 237;
-    --accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
+    --accent-gradient: linear-gradient(
+      45deg,
+      rgb(var(--accent)),
+      #da62c4 30%,
+      white 60%
+    );
   }
 
   html {
-    font-family: 'Zen Maru Gothic', Avenir, Helvetica, Arial, sans-serif;
+    font-family: "Zen Maru Gothic", Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -65,11 +86,16 @@ const pageUrl = pageUrlOf(path);
   html,
   body {
     height: 100vh;
+    margin: 0;
   }
 
   main {
     max-width: 800px;
     margin: 0 auto;
     padding: 0 20px;
+  }
+
+  a {
+    text-decoration: none;
   }
 </style>
