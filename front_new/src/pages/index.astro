@@ -2,17 +2,20 @@
 import Layout from "@/layouts/Layout.astro";
 import BeMyFriendButton from "@/components/BeMyFriendButton.astro";
 
-import { siteName } from '@/common.ts';
+import { siteName } from "@/common.ts";
 ---
 
-<Layout title={siteName} description="LINE上ですぐに使えるカップルのための折半アプリ" path="/">
+<Layout
+  title={siteName}
+  description="LINE上ですぐに使えるカップルのための折半アプリ"
+  path="/"
+>
   <div class="container">
     <section class="gray">
       <img src="/img/logo.webp" width="100" alt="Logo" />
       <h1>haraiai - 払い合い</h1>
       <p class="desc">
-        LINE上ですぐに使える <br />
-        カップルのための折半アプリ
+        LINE上ですぐに使える <wr></wr> カップルのための折半アプリ
       </p>
       <BeMyFriendButton />
     </section>
@@ -20,8 +23,8 @@ import { siteName } from '@/common.ts';
     <section id="feature1" class="white feature">
       <h2>LINE上で手軽に使える</h2>
       <p class="desc">
-        はじめ方は簡単。グループを作って<br />相手 と haraiai を追加するだけ。<br
-        />
+        はじめ方は簡単。<br />
+        グループを作って<wbr />相手とharaiaiを追加するだけ。<wbr />
         アプリのインストールや会員登録なしで すぐに始められます。
       </p>
 
@@ -31,8 +34,8 @@ import { siteName } from '@/common.ts';
     <section id="feature2" class="gray feature">
       <h2>支払い金額を自動で折半</h2>
       <p class="desc">
-        あとはグループに支払いを記録するだけ。 haraiai
-        が自動で折半し、支払い総額も教えてくれます。
+        あとはグループに支払いを記録するだけ。<br /> haraiaiが自動で折半し、<wbr
+        />支払い総額も教えてくれます。
       </p>
 
       <img class="feature" src="/img/f2.webp" alt="Feature2" />
@@ -41,9 +44,10 @@ import { siteName } from '@/common.ts';
     <section id="feature3" class="white feature">
       <h2>退屈な精算はもうしない</h2>
       <p class="desc">
-        面倒な定期精算をなくして払い合いませんか？
-        そんな気持ちが名前に込められています。 支払いが少ない側が次は払うことで
-        総支払い額が釣り合うようにしましょう！
+        面倒な定期精算をなくして払い合いませんか？<br />
+        そんな気持ちが名前に込められています。 <wrb></wrb>
+        支払いが少ない側が次は払うことで<br
+        />総支払い額が釣り合うようにしましょう！
       </p>
 
       <img src="/img/f3.webp" alt="Feature3" />
@@ -57,6 +61,7 @@ import { siteName } from '@/common.ts';
 
 <style lang="scss">
   .container {
+    max-width: 100%;
     margin: 0;
     padding: 0;
 
