@@ -8,11 +8,13 @@ export interface Props {
   path: string;
 }
 
-const createTitle = (pageTitle: string | null): string => {
-  return pageTitle ? `${pageTitle} | ${siteName}` : siteName;
-};
-
 const { title, description, path } = Astro.props;
+
+const createPageTitle = (title: string | null): string => {
+  return title ? `${title} | ${siteName}` : siteName;
+};
+const pageTitle = createPageTitle(title)
+
 const pageUrl = pageUrlOf(path);
 ---
 
@@ -23,15 +25,15 @@ const pageUrl = pageUrlOf(path);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" />
 
-    <title>{createTitle(title)}</title>
+    <title>{pageTitle}</title>
 
     <meta name="generator" content={Astro.generator} />
-    <meta name="title" content={title} />
+    <meta name="title" content={pageTitle} />
     <meta name="description" content={description} />
     <link rel="canonical" href={pageUrl} />
 
     <!-- OGP tags -->
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={pageTitle} />
     <meta property="og:type" content="website" />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={pageUrl} />
