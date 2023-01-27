@@ -7,6 +7,9 @@ import partytown from "@astrojs/partytown";
 import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
+import compress from "astro-compress";
+
+// https://astro.build/config
 export default defineConfig({
   site: "https://haraiai.netlify.app",
   integrations: [
@@ -17,5 +20,6 @@ export default defineConfig({
       },
     }),
     sitemap(),
+    compress(),
   ],
 });
