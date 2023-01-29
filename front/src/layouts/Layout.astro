@@ -13,7 +13,7 @@ const { title, description, path } = Astro.props;
 const createPageTitle = (title: string | null): string => {
   return title ? `${title} - ${siteName}` : siteName;
 };
-const pageTitle = createPageTitle(title)
+const pageTitle = createPageTitle(title);
 
 const pageUrl = pageUrlOf(path);
 ---
