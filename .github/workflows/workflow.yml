@@ -48,13 +48,13 @@ jobs:
           path: ./front/dist
           if-no-files-found: error
           retention-days: 1
-          # if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
 
   release-front:
     name: release front
     runs-on: ubuntu-latest
 
-    # if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
 
     needs:
       - check-server
