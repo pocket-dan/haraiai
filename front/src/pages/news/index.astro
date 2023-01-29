@@ -12,7 +12,7 @@ interface NewsProps {
 
 const news = await Astro.glob<NewsProps>("../../contents/news/*.md");
 news.sort((a, b) => {
-  return b.frontmatter.pubDate - a.frontmatter.pubDate;
+  return new Date(b.frontmatter.pubDate) - new Date(a.frontmatter.pubDate);
 });
 ---
 
@@ -36,7 +36,7 @@ news.sort((a, b) => {
             <p>{frontmatter.desc}</p>
           </article>
         ))
-        }
+      }
     </section>
   </div>
 </Layout>
