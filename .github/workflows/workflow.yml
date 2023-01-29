@@ -1,4 +1,4 @@
-name: server
+name: workflow
 
 on: push
 
@@ -14,7 +14,9 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version-file: ./pkg/go.mod
+          cache-dependency-path: ./pkg/go.sum
+          cache: true
 
       - name: Test code
         run: make ci-test
