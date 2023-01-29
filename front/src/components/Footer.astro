@@ -1,0 +1,117 @@
+---
+import { siteName } from "@/common.ts";
+---
+
+<footer>
+  <div class="container">
+    <a href="/">
+      <div class="banner">
+        <img src="/img/logo.webp" alt="Logo" />
+        <h1>{siteName}</h1>
+      </div>
+    </a>
+
+    <div class="links">
+      <nav class="about">
+        <h2>Guides</h2>
+        <ul>
+          <li><a href="/">サービスについて</a></li>
+          <li><a href="/help">よくある質問</a></li>
+          <li><a href="/inquiry">お問い合わせ</a></li>
+        </ul>
+      </nav>
+
+      <nav class="terms">
+        <h2>Legal</h2>
+        <ul>
+          <li><a href="/terms/tos">利用規約</a></li>
+          <li><a href="/terms/privacy">プライバシーポリシー</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <hr size="1" color="#ccc" />
+
+    <p class="center">
+      Developed by
+      <a href="https://raahii.me" target="_blank">
+        <span>raahii.</span>
+        <img
+          src="https://raahii.me/images/profile.png"
+          width="25px"
+          height="25px"
+          alt="raahii"
+        />
+      </a>
+    </p>
+
+    <p class="credit center">
+      <a
+        href="https://www.flaticon.com/free-icons/donation"
+        title="donation icons">Donation icons created by Freepik - Flaticon</a
+      >
+    </p>
+  </div>
+</footer>
+
+<style lang="scss">
+  footer {
+    position: sticky;
+    top: 100vh;
+    background-color: #f8fafb;
+    margin-top: 50px;
+    padding: 30px 0;
+
+    h1 {
+      font-size: 1.2em;
+    }
+
+    h2 {
+      font-size: 1.1em;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    @media screen and (min-width: 420px) {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  .banner {
+    margin: 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 20px;
+
+    img {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  .links {
+    @media screen and (min-width: 420px) {
+      display: flex;
+      gap: 10px;
+    }
+  }
+
+  hr {
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .credit {
+    margin: 0;
+    font-size: 0.8em;
+    color: gray;
+  }
+</style>

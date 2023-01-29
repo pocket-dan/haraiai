@@ -1,0 +1,122 @@
+---
+import { pageUrlOf, siteName } from "@/common.ts";
+import Footer from "@/components/Footer.astro";
+
+export interface Props {
+  title: string | null;
+  description: string;
+  path: string;
+}
+
+const { title, description, path } = Astro.props;
+
+const createPageTitle = (title: string | null): string => {
+  return title ? `${title} - ${siteName}` : siteName;
+};
+const pageTitle = createPageTitle(title)
+
+const pageUrl = pageUrlOf(path);
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <title>{pageTitle}</title>
+
+    <meta name="generator" content={Astro.generator} />
+    <meta name="title" content={pageTitle} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={pageUrl} />
+
+    <!-- OGP tags -->
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:site_name" content={siteName} />
+    <meta
+      property="og:image"
+      content="https://haraiai.netlify.app/logo-ogp.png"
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic&display=swap"
+      /></noscript
+    >
+
+    <!-- Google site verification -->
+    <meta
+      name="google-site-verification"
+      content="BFYPlt_zIMeP0-p5C2PvUMfLEp07wl8GpGpj7llQH4M"
+    />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-FMS9YJCVM8"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-FMS9YJCVM8");
+    </script>
+  </head>
+  <body>
+    <main>
+      <slot />
+    </main>
+  </body>
+  <Footer />
+</html>
+
+<style is:global lang="scss">
+  :root {
+    --accent: 124, 58, 237;
+    --accent-gradient: linear-gradient(
+      45deg,
+      rgb(var(--accent)),
+      #da62c4 30%,
+      white 60%
+    );
+  }
+
+  html {
+    font-family: "Zen Maru Gothic", Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  a {
+    color: black;
+  }
+</style>

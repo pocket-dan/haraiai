@@ -1,0 +1,104 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import BeMyFriendButton from "@/components/BeMyFriendButton.astro";
+
+import { siteName } from "@/common.ts";
+---
+
+<Layout description="LINE上ですぐに使えるカップルのための折半アプリ" path="/">
+  <div class="container">
+    <section>
+      <img src="/img/logo.webp" width="100" height="100" alt="Logo" />
+      <h1>haraiai - 払い合い</h1>
+      <p class="desc">
+        LINE上ですぐに使える<wbr />カップルのための折半アプリ
+      </p>
+      <BeMyFriendButton />
+    </section>
+
+    <section id="feature1" class="feature">
+      <h2>LINE上で手軽に使える</h2>
+      <p class="desc">
+        はじめ方は簡単。<br/>
+        折半したい相手とharaiaiを含めた<wbr/>3人のグループを作るだけ。<br />
+        アプリのインストールや会員登録なしで<wbr />すぐに始められます。
+      </p>
+
+      <img src="/img/features/f1.webp" alt="Feature1" />
+    </section>
+
+    <section id="feature2" class="feature">
+      <h2>支払い金額を自動で折半</h2>
+      <p class="desc">
+        いつもどおりのLINE感覚で<wbr />
+        グループに支払いを記録していくと<br />
+        haraiaiが支払い金額の差額を教えてくれます。
+      </p>
+
+      <img class="feature" src="/img/features/f2.webp" alt="Feature2" />
+    </section>
+
+    <section id="feature3" class="feature">
+      <h2>退屈な精算はもうしない</h2>
+      <p class="desc">
+        その精算作業、本当に必要ですか？<br />
+        「お互いの支出が釣り合うようにする」<wbr/>ことを私たちは目指します。<br />
+        haraiaiで楽に折半してみませんか？
+      </p>
+
+      <img src="/img/features/f3.webp" alt="Feature3" />
+    </section>
+
+    <div id="add-friend" class="white">
+      <BeMyFriendButton />
+    </div>
+  </div>
+</Layout>
+
+<style lang="scss">
+  .container {
+    /*
+       Using !imporant is workaround for astro bug (probably).
+       Astro generates htmls that increrectly load styles in other pages.
+       e.g. top page (index.html) loads help page css(/_astro/help.9ec21e7e.cs).
+
+       The document says that <style> CSS rules are automatically scoped by default, so it's weired.
+       I confirm this until the astro version v2.0.2.
+       https://docs.astro.build/en/guides/styling/#scoped-styles
+     */
+    max-width: 100% !important;
+    padding: 0 !important;
+    text-align: center;
+
+    #add-friend {
+      margin: 40px 0 0px;
+      height: 40px;
+    }
+
+    section {
+      padding: 30px 30px;
+
+      &:nth-child(2n+1) {
+        background: #f8fafb;
+      }
+
+      &.feature {
+        img {
+          display: block;
+          width: 90%;
+          margin: 0 auto;
+          max-width: 350px;
+        }
+      }
+
+      p.desc {
+        margin-bottom: 30px;
+        word-break: keep-all;
+
+        ul {
+          text-align: left;
+        }
+      }
+    }
+  }
+</style>

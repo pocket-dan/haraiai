@@ -1,7 +1,13 @@
-<script setup lang="ts"></script>
+---
+import Layout from "@/layouts/Layout.astro";
+---
 
-<template>
-  <div class="privacy-policy-page">
+<Layout
+  title="プライバシーポリシー"
+  description="プライバシーポリシー"
+  path="/terms/privacy/"
+>
+  <div class="container">
     <h1>プライバシーポリシー</h1>
 
     <h2>お客様から取得する情報</h2>
@@ -58,10 +64,12 @@
     <h2>アクセス解析ツール</h2>
     <p>
       本サービスは、お客様のアクセス解析のために、「Googleアナリティクス」を利用しています。Googleアナリティクスは、トラフィックデータの収集のためにCookieを使用しています。トラフィックデータは匿名で収集されており、個人を特定するものではありません。Cookieを無効にすれば、これらの情報の収集を拒否することができます。詳しくはお使いのブラウザの設定をご確認ください。Googleアナリティクスについて、詳しくは以下からご確認ください。
-      <br>
+      <br />
     </p>
     <p class="center">
-      <a href="https://marketingplatform.google.com/about/analytics/terms/jp/">Google アナリティクス利用規約</a>
+      <a href="https://marketingplatform.google.com/about/analytics/terms/jp/"
+        >Google アナリティクス利用規約</a
+      >
     </p>
 
     <h2>プライバシーポリシーの変更</h2>
@@ -73,26 +81,19 @@
     <p>
       お客様の情報の開示、情報の訂正、利用停止、削除をご希望の場合は、以下のメールアドレスにご連絡ください。
     </p>
-    <p class="center">
-      e-mail : haraiai.app@gmail.com
-    </p>
+    <p class="center">e-mail : haraiai.app@gmail.com</p>
 
     この場合、必ず、運転免許証のご提示等本サービスが指定する方法により、ご本人からのご請求であることの確認をさせていただきます。なお、情報の開示請求については、開示の有無に関わらず、ご申請時に一件あたり1,000円の事務手数料を申し受けます。
 
-    <br>
-    <br>
+    <br />
+    <br />
     2022年06月03日 制定
-    <br>
+    <br />
     2022年06月04日 改定
   </div>
-</template>
+</Layout>
 
-<style lang="scss" scoped>
-.privacy-policy-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 20px;
-
+<style>
   h1 {
     margin-bottom: 50px;
   }
@@ -103,5 +104,4 @@
       text-align: center;
     }
   }
-}
 </style>

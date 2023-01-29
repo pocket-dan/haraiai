@@ -1,7 +1,9 @@
-<script setup lang="ts"></script>
+---
+import Layout from "@/layouts/Layout.astro";
+---
 
-<template>
-  <div class="terms-of-service-page">
+<Layout title="利用規約" description="利用規約" path="/terms/tos/">
+  <div class="container">
     <h1>利用規約</h1>
 
     この利用規約(以下、「本規約」といいます。)は、本サービス(本サイトを含むものとし、以下、特に両者を区別しません。)の利用条件を定めるものです。本規約は、本サービスを利用するすべてのユーザーに適用されます。
@@ -116,20 +118,14 @@
     本規約のいずれかの条項又はその一部が無効又は執行不能と判断された場合であっても、当該判断は他の部分に影響を及ぼさず、本規約の残りの部分は、引き続き有効かつ執行力を有するものとします。
 
     <h2>準拠法・裁判管轄</h2>
-    本規約の解釈にあたっては、日本法を準拠法とします。
-    本サービスに関して紛争が生じた場合には、本サービスの本店所在地を管轄する地方裁判所を専属的合意管轄とします。
+    本規約の解釈にあたっては、日本法を準拠法とします。 本サービスに関して紛争が生じた場合には、本サービスの本店所在地を管轄する地方裁判所を専属的合意管轄とします。
 
-    <br><br>
+    <br /><br />
     2022年06月03日 制定
   </div>
-</template>
+</Layout>
 
-<style lang="scss" scoped>
-.terms-of-service-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 20px;
-
+<style lang="scss">
   h1 {
     margin-bottom: 50px;
   }
@@ -140,5 +136,4 @@
       text-align: center;
     }
   }
-}
 </style>
