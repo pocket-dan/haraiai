@@ -13,19 +13,26 @@ import { siteName } from "@/common.ts";
 
     <div class="links">
       <nav class="about">
+        <h2>About</h2>
+        <ul>
+          <li><a href="/">haraiai について</a></li>
+          <li><a href="/news/">お知らせ</a></li>
+        </ul>
+      </nav>
+
+      <nav class="guide">
         <h2>Guides</h2>
         <ul>
-          <li><a href="/">サービスについて</a></li>
-          <li><a href="/help">よくある質問</a></li>
-          <li><a href="/inquiry">お問い合わせ</a></li>
+          <li><a href="/help/">よくある質問</a></li>
+          <li><a href="/inquiry/">お問い合わせ</a></li>
         </ul>
       </nav>
 
       <nav class="terms">
         <h2>Legal</h2>
         <ul>
-          <li><a href="/terms/tos">利用規約</a></li>
-          <li><a href="/terms/privacy">プライバシーポリシー</a></li>
+          <li><a href="/terms/tos/">利用規約</a></li>
+          <li><a href="/terms/privacy/">プライバシーポリシー</a></li>
         </ul>
       </nav>
     </div>
@@ -62,6 +69,10 @@ import { siteName } from "@/common.ts";
     margin-top: 50px;
     padding: 30px 0;
 
+    .container {
+      max-width: 640px;
+    }
+
     h1 {
       font-size: 1.2em;
     }
@@ -72,11 +83,6 @@ import { siteName } from "@/common.ts";
 
     a {
       text-decoration: none;
-    }
-
-    @media screen and (min-width: 420px) {
-      display: flex;
-      justify-content: center;
     }
   }
 
@@ -94,8 +100,9 @@ import { siteName } from "@/common.ts";
   }
 
   .links {
-    @media screen and (min-width: 420px) {
+    @media screen and (min-width: 600px) {
       display: flex;
+      justify-content: space-between;
       gap: 10px;
     }
   }

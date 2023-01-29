@@ -1,0 +1,70 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+import { newsUrlOf } from "./common.ts";
+
+interface NewsProps {
+  slug: string;
+  title: string;
+  desc: string;
+  pubDate: string;
+}
+
+const news = await Astro.glob<NewsProps>("../../contents/news/*.md");
+news.sort((a, b) => {
+  return b.frontmatter.pubDate - a.frontmatter.pubDate;
+});
+---
+
+<Layout
+  title="お知らせ"
+  description="haraiai に関するニュース・お知らせ"
+  path="/news/"
+>
+  <div class="container">
+    <h1>お知らせ</h1>
+    <section class="article-list">
+      {
+        news.map(({ frontmatter }) => (
+          <article>
+            <aside>{frontmatter.pubDate}</aside>
+            <h1>
+              <a class="underline" href={newsUrlOf(frontmatter.slug)}>
+                {frontmatter.title}
+              </a>
+            </h1>
+            <p>{frontmatter.desc}</p>
+          </article>
+        ))
+        }
+    </section>
+  </div>
+</Layout>
+
+<style lang="scss">
+  .article-list {
+    margin-top: 40px;
+  }
+
+  article {
+    + article {
+      margin-top: 50px;
+    }
+
+    aside {
+      font-size: 1em;
+      color: #444;
+    }
+
+    h1 {
+      font-size: 1.2em;
+      font-weight: 500;
+      margin: 5px 0 10px;
+
+      + p {
+        margin-top: 10px;
+        font-size: 0.9em;
+      }
+    }
+  }
+</style>
