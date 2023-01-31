@@ -25,9 +25,10 @@ news.sort((a, b) => {
     <h1>お知らせ</h1>
     <section class="article-list">
       {
-        news.map(({ frontmatter }) => (
+        news.map(({ frontmatter }, i) => (
           <article>
-            <aside>{frontmatter.pubDate}</aside>
+            <span>{frontmatter.pubDate}</span>
+            {i == 0 && <span>New!</span>}
             <h1>
               <a class="underline" href={newsUrlOf(frontmatter.slug)}>
                 {frontmatter.title}
@@ -51,9 +52,15 @@ news.sort((a, b) => {
       margin-top: 50px;
     }
 
-    aside {
+    span {
       font-size: 1em;
       color: #444;
+
+      + span {
+        padding-left: 5px;
+        color: #EB455F;
+        font-weight: 600;
+      }
     }
 
     h1 {
