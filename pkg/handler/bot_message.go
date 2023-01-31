@@ -409,7 +409,7 @@ func (bh *BotHandlerImpl) replyHelpMessage(event *linebot.Event) error {
 
 func (bh *BotHandlerImpl) replyGuideMessageForNameChange(event *linebot.Event) error {
 	message := fmt.Sprintf(
-		"名前を変更したいときは\n「%s○○%s」\nと言ってね",
+		"名前を変更したいときは\n「%s○○%s」\nと言ってね!",
 		CHANGE_NAME_MESSAGE_PREFIX, CHANGE_NAME_MESSAGE_SUFFIX,
 	)
 	replyMessage := []linebot.SendingMessage{
@@ -443,7 +443,7 @@ func (bh *BotHandlerImpl) updateMemberName(
 	}
 
 	replyMessage := []linebot.SendingMessage{
-		linebot.NewTextMessage(fmt.Sprintf("名前を「%s」に変更しました", sender.Name)),
+		linebot.NewTextMessage(fmt.Sprintf("名前を「%s」に変更しました👍", sender.Name)),
 	}
 
 	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessage...); err != nil {
