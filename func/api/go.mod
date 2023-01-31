@@ -1,6 +1,6 @@
 module github.com/raahii/haraiai/func/api
 
-go 1.18
+go 1.19
 
 replace github.com/raahii/haraiai/pkg => ../../pkg
 
