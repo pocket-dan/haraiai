@@ -462,7 +462,7 @@ func TestHandleMessageForNameChangeGuide(t *testing.T) {
 
 	// Check reply message.
 	expectedMessage := linebot.NewTextMessage(
-		"名前を変更したいときは\n「名前を〇〇に変更」\nと言ってね",
+		"名前を変更したいときは\n「名前を○○に変更」\nと言ってね！",
 	)
 	b.
 		EXPECT().
@@ -535,7 +535,7 @@ func TestHandleNameChange(t *testing.T) {
 
 			// Check reply message.
 			expectedMessage := linebot.NewTextMessage(
-				fmt.Sprintf("名前を「%s」に変更しました", tt.newName),
+				fmt.Sprintf("名前を「%s」に変更しました👍", tt.newName),
 			)
 
 			b.
