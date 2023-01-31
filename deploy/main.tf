@@ -38,7 +38,7 @@ resource "google_storage_bucket_object" "bot" {
 resource "google_cloudfunctions_function" "bot_webhook" {
   name        = "BotWebhookHandler"
   description = "Handle LINE Bot webhook"
-  runtime     = "go116"
+  runtime     = "go119"
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.bot.name
@@ -94,7 +94,7 @@ resource "google_storage_bucket_object" "api" {
 resource "google_cloudfunctions_function" "api_notify_inquiry" {
   name        = "NotifyInquiry"
   description = "Handle inquiry from user"
-  runtime     = "go116"
+  runtime     = "go119"
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.api.name

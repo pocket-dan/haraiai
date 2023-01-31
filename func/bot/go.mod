@@ -1,6 +1,6 @@
 module github.com/raahii/haraiai/func/bot
 
-go 1.18
+go 1.19
 
 replace github.com/raahii/haraiai/pkg => ../../pkg
 
@@ -28,11 +28,13 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/nikoksr/notify v0.27.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/samber/lo v1.37.0 // indirect
 	github.com/utahta/go-linenotify v0.5.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0 // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect

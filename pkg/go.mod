@@ -1,6 +1,6 @@
 module github.com/raahii/haraiai/pkg
 
-go 1.18
+go 1.19
 
 replace github.com/raahii/haraiai/pkg => ../../pkg
 
@@ -10,6 +10,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/line/line-bot-sdk-go/v7 v7.16.0
 	github.com/nikoksr/notify v0.27.0
+	github.com/samber/lo v1.37.0
 	github.com/stretchr/testify v1.7.1
 	google.golang.org/api v0.81.0
 )
@@ -28,6 +29,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/utahta/go-linenotify v0.5.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect

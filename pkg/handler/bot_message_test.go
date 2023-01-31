@@ -444,6 +444,123 @@ func TestHandleHelpMessage_success(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestHandleMessageForNameChangeGuide(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	c := mock.NewMockBotConfig(ctrl)
+	b := mock.NewMockBotClient(ctrl)
+	s := mock.NewMockStore(ctrl)
+	target := BotHandlerImpl{config: c, bot: b, store: s}
+
+	// Mock and check GetGroup method call.
+	s.
+		EXPECT().
+		GetGroup(GROUP_ID).
+		Return(DEFAULT_GROUP, nil).
+		Times(1)
+
+	// Check reply message.
+	expectedMessage := linebot.NewTextMessage(
+		"名前を変更したいときは\n「名前を○○に変更」\nと言ってね！",
+	)
+	b.
+		EXPECT().
+		ReplyMessage(REPLY_TOKEN, gomock.Any()).
+		Times(1).
+		Do(func(_ string, messages ...linebot.SendingMessage) {
+			assert.Len(t, messages, 1)
+			assert.Equal(t, expectedMessage, messages[0])
+		})
+
+	event := newTestMessageEvent(
+		REPLY_TOKEN,
+		linebot.EventSourceTypeGroup,
+		GROUP_ID,
+		TARO_ID,
+	)
+	message := newTextMessage("名前を変更")
+	err := target.handleTextMessage(event, message)
+
+	assert.Nil(t, err)
+}
+
+func TestHandleNameChange(t *testing.T) {
+	cases := []struct {
+		message string
+		newName string
+	}{
+		{"名前をほげに変更", "ほげ"},
+		{"名前をテスト 太郎に変更", "テスト 太郎"},
+		{"名前を    テスト太郎\nに変更", "テスト太郎"},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.message, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			c := mock.NewMockBotConfig(ctrl)
+			b := mock.NewMockBotClient(ctrl)
+			s := mock.NewMockStore(ctrl)
+			target := BotHandlerImpl{config: c, bot: b, store: s}
+
+			// Mock and check GetGroup method call.
+			s.
+				EXPECT().
+				GetGroup(GROUP_ID).
+				Return(DEFAULT_GROUP, nil).
+				Times(1)
+
+			s.
+				EXPECT().
+				SaveGroup(gomock.Any()).
+				Times(1).
+				Do(func(newGroup *store.Group) {
+					assert.Equal(t, GROUP_ID, newGroup.ID)
+					assert.Len(t, newGroup.Members, 2)
+
+					taro, exists := newGroup.Members[TARO_ID]
+					assert.True(t, exists)
+
+					// should be changed
+					assert.Equal(t, tt.newName, taro.Name)
+
+					// should not be changed
+					assert.Equal(t, int64(0), taro.PayAmount)
+
+					hanako, exists := newGroup.Members[HANAKO_ID]
+					assert.Equal(t, hanako, newHanakoUser(0))
+				})
+
+			// Check reply message.
+			expectedMessage := linebot.NewTextMessage(
+				fmt.Sprintf("名前を「%s」に変更しました👍", tt.newName),
+			)
+
+			b.
+				EXPECT().
+				ReplyMessage(REPLY_TOKEN, gomock.Any()).
+				Times(1).
+				Do(func(_ string, messages ...linebot.SendingMessage) {
+					assert.Len(t, messages, 1)
+					assert.Equal(t, expectedMessage, messages[0])
+				})
+
+			event := newTestMessageEvent(
+				REPLY_TOKEN,
+				linebot.EventSourceTypeGroup,
+				GROUP_ID,
+				TARO_ID,
+			)
+			message := newTextMessage(tt.message)
+			err := target.handleTextMessage(event, message)
+
+			assert.Nil(t, err)
+		})
+	}
+}
+
 func newTestMessageEvent(
 	replyToken string,
 	eventSourceType linebot.EventSourceType,
