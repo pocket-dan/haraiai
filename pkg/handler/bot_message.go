@@ -6,9 +6,11 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/raahii/haraiai/pkg/store"
+	"github.com/samber/lo"
 )
 
 const (
@@ -23,6 +25,9 @@ const (
 	EVEN_UP_COMPLETE_MESSAGE = "精算完了"
 	HELP_MESSAGE             = "ヘルプ"
 	TOTAL_UP_PREFIX          = "支払った総額は..."
+
+	CHANGE_NAME_MESSAGE_PREFIX = "名前を"
+	CHANGE_NAME_MESSAGE_SUFFIX = "に変更"
 
 	DONE_REPLY_MESSAGE = "👍"
 
@@ -76,6 +81,19 @@ const (
 )
 
 var (
+	MESSAGES_FOR_NAME_CHANGE_GUIDE = []string{
+		"名前変更",
+		"ニックネーム変更",
+		"名前を変更",
+		"ニックネームを変更",
+		"名前変えて",
+		"ニックネーム変えて",
+		"名前を変えて",
+		"ニックネームを変えて",
+		"名前を変えたい",
+		"ニックネームを変えたい",
+	}
+
 	READY_TO_START_MESSAGES = []linebot.SendingMessage{
 		linebot.NewTextMessage("2人の名前を登録したよ、ありがとう！折半をはじめられるよ。").
 			WithQuickReplies(linebot.NewQuickReplyItems(
@@ -159,6 +177,9 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 			}
 			return nil
 		}
+
+		// There's no supported commands when group status is GROUP_CREATED.
+		return nil
 	}
 
 	// Tutorial
@@ -206,6 +227,22 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 		return nil
 	}
 
+	// Show guide for name change.
+	if lo.Contains(MESSAGES_FOR_NAME_CHANGE_GUIDE, message.Text) {
+		if err := bh.replyGuideMessageForNameChange(event); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	// Change name.
+	if strings.HasPrefix(message.Text, CHANGE_NAME_MESSAGE_PREFIX) && strings.HasSuffix(message.Text, CHANGE_NAME_MESSAGE_SUFFIX) {
+		if err := bh.updateMemberName(event, group, message.Text); err != nil {
+			return err
+		}
+		return nil
+	}
+
 	// Save a new payment if it's valid message.
 	if payAmount, err := extractPayAmount(message.Text); err == nil {
 		if err := bh.addNewPayment(event, group, payAmount); err != nil {
@@ -223,6 +260,7 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 
 func (bh *BotHandlerImpl) addNewMember(event *linebot.Event, group *store.Group, text string) error {
 	// FIXME: Need to consider multiple users are added to the group simultaneously.
+	// FIXME: Need to consider nickname (user) validation.
 
 	memberName := strings.TrimSuffix(text, JOIN_MESSAGE_SUFFIX)
 	memberName = strings.Trim(memberName, " \n")
@@ -369,6 +407,52 @@ func (bh *BotHandlerImpl) replyHelpMessage(event *linebot.Event) error {
 	return nil
 }
 
+func (bh *BotHandlerImpl) replyGuideMessageForNameChange(event *linebot.Event) error {
+	message := fmt.Sprintf(
+		"名前を変更したいときは\n「%s○○%s」\nと言ってね",
+		CHANGE_NAME_MESSAGE_PREFIX, CHANGE_NAME_MESSAGE_SUFFIX,
+	)
+	replyMessage := []linebot.SendingMessage{
+		linebot.NewTextMessage(message),
+	}
+
+	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessage...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (bh *BotHandlerImpl) updateMemberName(
+	event *linebot.Event,
+	group *store.Group,
+	messageText string,
+) error {
+	senderID := event.Source.UserID
+	sender, ok := group.Members[senderID]
+	if !ok {
+		return fmt.Errorf("sender is not found in group (ID=%s)", group.ID)
+	}
+
+	sender.Name = extractNewName(messageText)
+	sender.Touch()
+
+	err := bh.store.SaveGroup(group)
+	if err != nil {
+		return err
+	}
+
+	replyMessage := []linebot.SendingMessage{
+		linebot.NewTextMessage(fmt.Sprintf("名前を「%s」に変更しました", sender.Name)),
+	}
+
+	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessage...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (bh *BotHandlerImpl) replyToNewPayment(event *linebot.Event, text string) error {
 	replyMessages := []linebot.SendingMessage{
 		linebot.NewTextMessage(DONE_REPLY_MESSAGE),
@@ -443,4 +527,18 @@ func extractSortedUsers(m map[string]*store.User) []*store.User {
 
 	sort.Slice(v, func(i, j int) bool { return v[i].Name < v[j].Name })
 	return v
+}
+
+func extractNewName(text string) string {
+	textRunes := []rune(text)
+	prefixCharCounts := utf8.RuneCountInString(CHANGE_NAME_MESSAGE_PREFIX)
+	suffixCharCounts := utf8.RuneCountInString(CHANGE_NAME_MESSAGE_SUFFIX)
+
+	start := prefixCharCounts
+	end := len(textRunes) - suffixCharCounts
+
+	extracted := string(textRunes[start:end])
+	extracted = strings.Trim(extracted, " \n")
+
+	return extracted
 }
