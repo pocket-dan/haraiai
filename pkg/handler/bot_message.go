@@ -21,7 +21,6 @@ const (
 	TUTORIAL_PAYMENT_CANCEL_MESSAGE = "例: お昼ごはん代\n-3000"
 
 	TOTAL_UP_MESSAGE         = "集計"
-	EVEN_UP_MESSAGE          = "精算"
 	EVEN_UP_COMPLETE_MESSAGE = "精算完了"
 	HELP_MESSAGE             = "ヘルプ"
 	TOTAL_UP_PREFIX          = "支払った総額は..."
@@ -92,6 +91,13 @@ var (
 		"ニックネームを変えて",
 		"名前を変えたい",
 		"ニックネームを変えたい",
+	}
+
+	MESSAGES_FOR_EVEN_UP = []string{
+		"精算",
+		"精算したい",
+		"リセット",
+		"リセットしたい",
 	}
 
 	READY_TO_START_MESSAGES = []linebot.SendingMessage{
@@ -204,7 +210,7 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 	}
 
 	// Even up payment amount.
-	if message.Text == EVEN_UP_MESSAGE {
+	if lo.Contains(MESSAGES_FOR_EVEN_UP, message.Text) {
 		if err := bh.replyEvenUpConfirmation(event, group); err != nil {
 			return err
 		}

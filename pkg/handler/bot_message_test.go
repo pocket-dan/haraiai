@@ -240,54 +240,67 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 }
 
 func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	inputTexts := []string{
+		"精算",
+		"精算したい",
+		"リセット",
+		"リセットしたい",
+	}
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	for _, text := range inputTexts {
+		caseName := fmt.Sprintf("input test: %s", text)
 
-	group := newTestGroup(
-		GROUP_ID,
-		store.GROUP_STARTED,
-		[]*store.User{newTaroUser(1000), newHanakoUser(5000)},
-	)
+		t.Run(caseName, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-	// Mock and check GetGroup method call.
-	s.
-		EXPECT().
-		GetGroup(group.ID).
-		Return(group, nil).
-		Times(1)
+			c := mock.NewMockBotConfig(ctrl)
+			b := mock.NewMockBotClient(ctrl)
+			s := mock.NewMockStore(ctrl)
+			target := BotHandlerImpl{config: c, bot: b, store: s}
 
-	// Check reply message.
-	expectedTextMessage := linebot.NewTextMessage(
-		"太郎さんは花子さんに 2000 円渡してね🙏",
-	)
+			group := newTestGroup(
+				GROUP_ID,
+				store.GROUP_STARTED,
+				[]*store.User{newTaroUser(1000), newHanakoUser(5000)},
+			)
 
-	b.
-		EXPECT().
-		ReplyMessage(REPLY_TOKEN, gomock.Any()).
-		Times(1).
-		Do(func(_ string, messages ...linebot.SendingMessage) {
-			assert.Len(t, messages, 2)
-			assert.Equal(t, expectedTextMessage, messages[0])
+			// Mock and check GetGroup method call.
+			s.
+				EXPECT().
+				GetGroup(group.ID).
+				Return(group, nil).
+				Times(1)
 
-			// Omit flex type message verification
-			// assert.Equal(t, expectedConfirmationMessage, messages[1])
+			// Check reply message.
+			expectedTextMessage := linebot.NewTextMessage(
+				"太郎さんは花子さんに 2000 円渡してね🙏",
+			)
+
+			b.
+				EXPECT().
+				ReplyMessage(REPLY_TOKEN, gomock.Any()).
+				Times(1).
+				Do(func(_ string, messages ...linebot.SendingMessage) {
+					assert.Len(t, messages, 2)
+					assert.Equal(t, expectedTextMessage, messages[0])
+
+					// Omit flex type message verification
+					// assert.Equal(t, expectedConfirmationMessage, messages[1])
+				})
+
+			event := newTestMessageEvent(
+				REPLY_TOKEN,
+				linebot.EventSourceTypeGroup,
+				group.ID,
+				TARO_ID,
+			)
+			message := newTextMessage(text)
+			err := target.handleTextMessage(event, message)
+
+			assert.Nil(t, err)
 		})
-
-	event := newTestMessageEvent(
-		REPLY_TOKEN,
-		linebot.EventSourceTypeGroup,
-		group.ID,
-		TARO_ID,
-	)
-	message := newTextMessage("精算")
-	err := target.handleTextMessage(event, message)
-
-	assert.Nil(t, err)
+	}
 }
 
 func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
