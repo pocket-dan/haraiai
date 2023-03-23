@@ -21,7 +21,7 @@ const (
 	TUTORIAL_PAYMENT_CANCEL_MESSAGE = "例: お昼ごはん代\n-3000"
 
 	TOTAL_UP_MESSAGE         = "集計"
-	EVEN_UP_COMPLETE_MESSAGE = "精算完了"
+	EVEN_UP_COMPLETE_MESSAGE = "清算完了"
 	HELP_MESSAGE             = "ヘルプ"
 	TOTAL_UP_PREFIX          = "支払った総額は..."
 
@@ -40,7 +40,7 @@ const (
       "contents": [
       {
         "type": "text",
-        "text": "自動で精算します。渡しましたか？\n（2回以上タップしないでね）",
+        "text": "清算します。渡しましたか？\n（2回以上タップしないでね）",
         "color": "#ffffff",
         "align": "start",
         "size": "md",
@@ -62,7 +62,7 @@ const (
         "action": {
           "type": "message",
           "label": "はい",
-          "text": "精算完了"
+          "text": "清算完了"
         },
         "height": "sm"
       }
@@ -94,6 +94,8 @@ var (
 	}
 
 	MESSAGES_FOR_EVEN_UP = []string{
+		"清算",
+		"清算したい",
 		"精算",
 		"精算したい",
 		"リセット",
@@ -146,7 +148,6 @@ var (
 	TUTORIAL_REPLYS_4 = []linebot.SendingMessage{
 		linebot.NewTextMessage("お疲れさまでした！使い方の説明はおしまいです！😄"),
 		linebot.NewTextMessage("わからないことがあったら ヘルプ と声をかけてね"),
-		// linebot.NewTextMessage("最後に haraiai には支払いを精算してリセットする機能はないよ。定期的な精算をするよりも、支払いが少ない側が次回多めに払うことで支払い額のバランスを保つようにしよう！"),
 	}
 
 	// Will be initialized from json string after start up.
@@ -158,7 +159,7 @@ func init() {
 	if err != nil {
 		panic("failed to initialize flex contents for even up")
 	}
-	EVEN_UP_CONFIRMATION_REPLY = linebot.NewFlexMessage("精算しましたか？", flexContents)
+	EVEN_UP_CONFIRMATION_REPLY = linebot.NewFlexMessage("清算しましたか？", flexContents)
 }
 
 // Entry point of handing text type webhook event
@@ -336,7 +337,7 @@ func (bh *BotHandlerImpl) replyEvenUpConfirmation(
 
 	replyMessages := []linebot.SendingMessage{}
 	if whoPayALot.PayAmount == whoPayLess.PayAmount {
-		textMessage := linebot.NewTextMessage("払った額は同じ！精算の必要はないよ")
+		textMessage := linebot.NewTextMessage("払った額は同じ！清算の必要はないよ")
 		replyMessages = append(replyMessages, textMessage)
 	} else {
 		d := (whoPayALot.PayAmount - whoPayLess.PayAmount) / 2

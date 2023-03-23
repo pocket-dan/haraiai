@@ -241,6 +241,8 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 
 func TestHandleTextMessage_evenUpConfirmation_success(t *testing.T) {
 	inputTexts := []string{
+		"清算",
+		"清算したい",
 		"精算",
 		"精算したい",
 		"リセット",
@@ -326,7 +328,7 @@ func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
 		Times(1)
 
 		// Check reply message.
-	expectedMessage := linebot.NewTextMessage("払った額は同じ！精算の必要はないよ")
+	expectedMessage := linebot.NewTextMessage("払った額は同じ！清算の必要はないよ")
 	b.
 		EXPECT().
 		ReplyMessage(REPLY_TOKEN, gomock.Any()).
@@ -342,7 +344,7 @@ func TestHandleTextMessage_evenUpConfirmation_noNeed_success(t *testing.T) {
 		group.ID,
 		TARO_ID,
 	)
-	message := newTextMessage("精算")
+	message := newTextMessage("清算")
 	err := target.handleTextMessage(event, message)
 
 	assert.Nil(t, err)
@@ -402,7 +404,7 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 		group.ID,
 		TARO_ID,
 	)
-	message := newTextMessage("精算完了")
+	message := newTextMessage("清算完了")
 	err := target.handleTextMessage(event, message)
 
 	assert.Nil(t, err)
