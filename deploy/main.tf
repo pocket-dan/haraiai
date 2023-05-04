@@ -1,3 +1,13 @@
+terraform {
+  cloud {
+    organization = "haraiai"
+
+    workspaces {
+      name = "haraiai"
+    }
+  }
+}
+
 provider "google" {
   project = "haraiai"
   region  = "asia-northeast1"
