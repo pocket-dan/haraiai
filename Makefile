@@ -2,12 +2,10 @@
 
 # functions
 FUNC_BOT = func/bot
-FUNC_API = func/api
 
 
 build: clean generate
 	cd $(FUNC_BOT) && go mod tidy && go mod vendor && go build
-	cd $(FUNC_API) && go mod tidy && go mod vendor && go build
 
 clean:
 	rm -rf $(FUNC_BOT)/vendor
