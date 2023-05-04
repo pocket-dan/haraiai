@@ -81,12 +81,17 @@ jobs:
         with:
           credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
       - uses: "google-github-actions/setup-gcloud@v0"
+        with:
+          project_id: haraiai
+          export_default_credentials: true
       - run: "gcloud info"
 
       # Terraform
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
+      - id: fmt
+        run: terraform fmt -check
       - id: init
         run: terraform init
       - id: validate
