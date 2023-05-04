@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/raahii/haraiai/pkg/handler"
 	"github.com/rs/cors"
 )
 
@@ -15,7 +16,6 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-
 	mux.HandleFunc("/BotWebhookHandler", bot.HandleWebhook)
 
 	handler := cors.Default().Handler(mux)
