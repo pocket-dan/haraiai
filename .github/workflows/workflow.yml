@@ -52,6 +52,75 @@ jobs:
           retention-days: 1
         if: github.ref == 'refs/heads/main'
 
+  release-server:
+    name: release server
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+
+    needs:
+      - check-server
+      - check-front
+
+    env:
+      TF_VERSION: "1.4.6"
+
+    steps:
+      # GCP
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+      - uses: "google-github-actions/setup-gcloud@v0"
+      - run: "gcloud info"
+
+      # Terraform
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - id: init
+        run: terraform init
+      - id: validate
+        run: terraform validate -no-color
+      - id: plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -no-color -input=false
+        continue-on-error: true
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`terraform\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      - if: steps.plan.outcome == 'failure'
+        run: exit 1
+      - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
+
   release-front:
     name: release front
     runs-on: ubuntu-latest
