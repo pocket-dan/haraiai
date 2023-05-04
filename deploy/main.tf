@@ -18,10 +18,6 @@ data "google_secret_manager_secret_version" "line_bot_channel_access_token" {
   secret = "lineBotChannelAccessToken"
 }
 
-data "google_secret_manager_secret_version" "line_notifier_receiver_token" {
-  secret = "lineNotifierReceiverToken"
-}
-
 # Cloud Functions for LINE Bot
 data "archive_file" "bot" {
   type        = "zip"
@@ -75,58 +71,5 @@ resource "google_cloudfunctions_function_iam_member" "webhook_invoker" {
 
 output "function_bot_webhook_url" {
   value = google_cloudfunctions_function.bot_webhook.https_trigger_url
-}
-
-
-# Cloud Functions for general REST API
-data "archive_file" "api" {
-  type        = "zip"
-  source_dir  = "../func/api"
-  output_path = "tmp/api.zip"
-}
-
-resource "google_storage_bucket_object" "api" {
-  name   = "func/api.${data.archive_file.api.output_md5}.zip"
-  bucket = google_storage_bucket.bucket.name
-  source = data.archive_file.api.output_path
-}
-
-resource "google_cloudfunctions_function" "api_notify_inquiry" {
-  name        = "NotifyInquiry"
-  description = "Handle inquiry from user"
-  runtime     = "go119"
-
-  source_archive_bucket = google_storage_bucket.bucket.name
-  source_archive_object = google_storage_bucket_object.api.name
-
-  trigger_http = true
-  entry_point  = "NotifyInquiry"
-
-  available_memory_mb = 128
-  timeout             = 10
-  min_instances       = 0
-  max_instances       = 1
-
-  environment_variables = {
-    "PHASE" = "production"
-    "FE_BASE_URL" = "https://haraiai.netlify.app"
-
-    "LINE_NOTIFY_TOKEN" = data.google_secret_manager_secret_version.line_notifier_receiver_token.secret_data
-
-    "TZ" = "Asia/Tokyo"
-  }
-}
-
-resource "google_cloudfunctions_function_iam_member" "inquiry_invoker" {
-  project        = google_cloudfunctions_function.api_notify_inquiry.project
-  region         = google_cloudfunctions_function.api_notify_inquiry.region
-  cloud_function = google_cloudfunctions_function.api_notify_inquiry.name
-
-  role   = "roles/cloudfunctions.invoker"
-  member = "allUsers"
-}
-
-output "function_api_inquiry_url" {
-  value = google_cloudfunctions_function.api_notify_inquiry.https_trigger_url
 }
 
