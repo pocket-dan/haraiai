@@ -1,6 +1,12 @@
 name: workflow
 
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   check-server:
