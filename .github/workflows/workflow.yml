@@ -61,6 +61,7 @@ jobs:
   release-server:
     name: release server
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     permissions:
       pull-requests: write
@@ -74,10 +75,20 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./deploy
+        working-directory: deploy
 
     steps:
       - uses: actions/checkout@v3
+
+      # Go
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: ./pkg/go.mod
+          cache-dependency-path: ./pkg/go.sum
+          cache: true
+
+      - run: make build before-deploy
+        working-directory: .
 
       # GCP
       - id: "auth"
@@ -130,14 +141,16 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
-      - if: steps.plan.outcome == 'failure'
-        run: exit 1
-      - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+      - run: exit 1
+        if: steps.plan.outcome == 'failure'
+
+      - run: terraform apply -auto-approve -input=false
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
   release-front:
     name: release front
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     if: github.ref == 'refs/heads/main'
 

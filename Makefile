@@ -4,7 +4,7 @@
 FUNC_BOT = func/bot
 
 
-build: clean generate
+build: clean prepare generate
 	cd $(FUNC_BOT) && go mod tidy && go mod vendor && go build
 
 clean:
@@ -21,7 +21,7 @@ generate:
 test: generate
 	cd pkg && PHASE=test gotest -v ./...
 
-ci-test: prepare build generate
+ci-test: prepare build
 	cd pkg && PHASE=test go test -json ./... | tee /tmp/gotest.log | gotestfmt
 
 develop:
@@ -30,11 +30,12 @@ develop:
 develop-fe:
 	cd front && npm run dev
 
-deploy: build
+before-deploy:
 	# copy static resources
 	rm -rf func/bot/images || true
 	cp -r pkg/images func/bot/
-	# deploy
+
+deploy: build before-deploy
 	cd deploy && terraform apply
 
 ngrok:
