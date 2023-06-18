@@ -17,19 +17,14 @@ require (
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
-	github.com/line/line-bot-sdk-go v7.8.0+incompatible // indirect
 	github.com/line/line-bot-sdk-go/v7 v7.16.0 // indirect
-	github.com/nikoksr/notify v0.27.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
+	github.com/oklog/ulid/v2 v2.1.0 // indirect
 	github.com/samber/lo v1.37.0 // indirect
-	github.com/utahta/go-linenotify v0.5.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
-	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
