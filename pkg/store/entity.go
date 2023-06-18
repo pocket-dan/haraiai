@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/Songmu/flextime"
-	"github.com/oklog/ulid/v2"
 )
 
 var (
@@ -44,12 +43,11 @@ func NewGroup(ID string, status GroupStatus) *Group {
 
 // Payment
 type Payment struct {
-	ID        ulid.ULID
+	ID        string
 	Name      string
 	Amount    int64
 	Type      PaymentType
 	PayerID   string
-	GroupID   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

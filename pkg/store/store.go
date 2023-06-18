@@ -111,10 +111,9 @@ func (s *StoreImpl) DeleteGroup(groupID string) error {
 	return nil
 }
 
-// CreatePayment create a payment in group.
+// CreatePayment create a payment in the group.
 func (s *StoreImpl) CreatePayment(groupID string, payment *Payment) error {
-	payment.ID = ulid.Make()
-	payment.GroupID = groupID
+	payment.ID = ulid.Make().String()
 
 	now := time.Now()
 	payment.CreatedAt = now
@@ -122,7 +121,10 @@ func (s *StoreImpl) CreatePayment(groupID string, payment *Payment) error {
 
 	ctx := context.Background()
 
-	doc := s.client.Collection(PAYMENT_COLLECTION_ID).Doc(groupID)
+	doc := s.client.
+		Collection(GROUP_COLLECTION_ID).Doc(groupID).
+		Collection(PAYMENT_COLLECTION_ID).Doc(payment.ID)
+
 	_, err := doc.Set(ctx, payment)
 	if err != nil {
 		return fmt.Errorf("failed to add payment to group(id=%s): %w", groupID, err)

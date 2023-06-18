@@ -370,6 +370,8 @@ func (bh *BotHandlerImpl) replyEvenUpComplete(
 		return nil
 	}
 
+	// FIXME: operate group and payment using a transaction
+
 	// Record payment
 	payment := new(store.Payment)
 	payment.Name = "清算"
@@ -402,6 +404,8 @@ func (bh *BotHandlerImpl) addNewPayment(event *linebot.Event, group *store.Group
 	if !ok {
 		return fmt.Errorf("sender is not found in group (ID=%s)", group.ID)
 	}
+
+	// FIXME: operate group and payment using a transaction
 
 	// Record payment
 	payment := new(store.Payment)
