@@ -35,7 +35,7 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // CreatePayment mocks base method.
-func (m *MockStore) CreatePayment(arg0 string, arg1 store.Payment) error {
+func (m *MockStore) CreatePayment(arg0 string, arg1 *store.Payment) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePayment", arg0, arg1)
 	ret0, _ := ret[0].(error)

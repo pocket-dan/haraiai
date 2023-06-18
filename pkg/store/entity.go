@@ -48,7 +48,7 @@ type Payment struct {
 	Name      string
 	Amount    int64
 	Type      PaymentType
-	CreatedBy string
+	PayerID   string
 	GroupID   string
 	CreatedAt time.Time
 	UpdatedAt time.Time

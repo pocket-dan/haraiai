@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/oklog/ulid/v2"
@@ -22,7 +23,7 @@ type Store interface {
 	GetGroup(string) (*Group, error)
 	SaveGroup(*Group) error
 	DeleteGroup(string) error
-	CreatePayment(string, Payment) error
+	CreatePayment(string, *Payment) error
 }
 
 type StoreImpl struct {
@@ -111,9 +112,13 @@ func (s *StoreImpl) DeleteGroup(groupID string) error {
 }
 
 // CreatePayment create a payment in group.
-func (s *StoreImpl) CreatePayment(groupID string, payment Payment) error {
+func (s *StoreImpl) CreatePayment(groupID string, payment *Payment) error {
 	payment.ID = ulid.Make()
 	payment.GroupID = groupID
+
+	now := time.Now()
+	payment.CreatedAt = now
+	payment.UpdatedAt = now
 
 	ctx := context.Background()
 
