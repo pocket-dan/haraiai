@@ -9,17 +9,20 @@ import (
 	"os"
 
 	"cloud.google.com/go/firestore"
+	"github.com/oklog/ulid/v2"
 	"google.golang.org/api/option"
 )
 
 const (
-	GROUP_COLLECTION_ID = "groups"
+	GROUP_COLLECTION_ID   = "groups"
+	PAYMENT_COLLECTION_ID = "payments"
 )
 
 type Store interface {
 	GetGroup(string) (*Group, error)
 	SaveGroup(*Group) error
 	DeleteGroup(string) error
+	CreatePayment(string, Payment) error
 }
 
 type StoreImpl struct {
@@ -102,6 +105,22 @@ func (s *StoreImpl) DeleteGroup(groupID string) error {
 	_, err := doc.Delete(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete group: %w", err)
+	}
+
+	return nil
+}
+
+// CreatePayment create a payment in group.
+func (s *StoreImpl) CreatePayment(groupID string, payment Payment) error {
+	payment.ID = ulid.Make()
+	payment.GroupID = groupID
+
+	ctx := context.Background()
+
+	doc := s.client.Collection(PAYMENT_COLLECTION_ID).Doc(groupID)
+	_, err := doc.Set(ctx, payment)
+	if err != nil {
+		return fmt.Errorf("failed to add payment to group(id=%s): %w", groupID, err)
 	}
 
 	return nil

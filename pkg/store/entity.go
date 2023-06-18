@@ -4,12 +4,14 @@ import (
 	"time"
 
 	"github.com/Songmu/flextime"
+	"github.com/oklog/ulid/v2"
 )
 
 var (
 	JST = time.FixedZone("Asia/Tokyo", 9*60*60)
 )
 
+// Group
 type Group struct {
 	ID         string           `json:"id"`
 	Members    map[string]*User `json:"members"`
@@ -40,6 +42,26 @@ func NewGroup(ID string, status GroupStatus) *Group {
 	return g
 }
 
+// Payment
+type Payment struct {
+	ID        ulid.ULID
+	Name      string
+	Amount    int64
+	Type      PaymentType
+	CreatedBy string
+	GroupID   string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type PaymentType string
+
+const (
+	PAYMENT_TYPE_DEFAULT PaymentType = "DEFAULT" // 通常の支払い
+	PAYMENT_TYPE_EVEN_UP PaymentType = "EVEN_UP" // 清算
+)
+
+// User
 type User struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`

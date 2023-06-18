@@ -201,6 +201,17 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 
 	s.
 		EXPECT().
+		CreatePayment(group.ID, gomock.Any()).
+		Do(func(_ string, payment *store.Payment) {
+			assert.Equal(t, "スタバ", payment.Name)
+			assert.Equal(t, int64(1000), payment.Amount)
+			assert.Equal(t, store.PAYMENT_TYPE_DEFAULT, payment.Type)
+			assert.Equal(t, TARO_ID, payment.PayerID)
+		}).
+		Times(1)
+
+	s.
+		EXPECT().
 		SaveGroup(gomock.Any()).
 		Do(func(newGroup *store.Group) {
 			assert.Equal(t, group.ID, newGroup.ID)
@@ -370,6 +381,17 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 		EXPECT().
 		GetGroup(group.ID).
 		Return(group, nil).
+		Times(1)
+
+	s.
+		EXPECT().
+		CreatePayment(group.ID, gomock.Any()).
+		Do(func(_ string, payment *store.Payment) {
+			assert.Equal(t, "清算", payment.Name)
+			assert.Equal(t, int64(3000), payment.Amount)
+			assert.Equal(t, store.PAYMENT_TYPE_EVEN_UP, payment.Type)
+			assert.Equal(t, TARO_ID, payment.PayerID)
+		}).
 		Times(1)
 
 	// Check updated group
