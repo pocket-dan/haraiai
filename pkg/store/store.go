@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/oklog/ulid/v2"
+	"github.com/raahii/haraiai/pkg/timeutil"
 	"google.golang.org/api/option"
 )
 
@@ -84,7 +84,7 @@ func (s *StoreImpl) GetGroup(groupID string) (*Group, error) {
 
 // SaveGroup update a group.
 func (s *StoreImpl) SaveGroup(group *Group) error {
-	group.UpdatedAt = nowInJST()
+	group.UpdatedAt = timeutil.Now()
 
 	ctx := context.Background()
 
@@ -115,7 +115,7 @@ func (s *StoreImpl) DeleteGroup(groupID string) error {
 func (s *StoreImpl) CreatePayment(groupID string, payment *Payment) error {
 	payment.ID = ulid.Make().String()
 
-	now := time.Now()
+	now := timeutil.Now()
 	payment.CreatedAt = now
 	payment.UpdatedAt = now
 

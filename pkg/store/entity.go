@@ -3,11 +3,7 @@ package store
 import (
 	"time"
 
-	"github.com/Songmu/flextime"
-)
-
-var (
-	JST = time.FixedZone("Asia/Tokyo", 9*60*60)
+	"github.com/raahii/haraiai/pkg/timeutil"
 )
 
 // Group
@@ -35,8 +31,9 @@ func NewGroup(ID string, status GroupStatus) *Group {
 
 	g.Members = map[string]*User{}
 
-	g.CreatedAt = nowInJST()
-	g.UpdatedAt = nowInJST()
+	now := timeutil.Now()
+	g.CreatedAt = now
+	g.UpdatedAt = now
 
 	return g
 }
@@ -74,17 +71,13 @@ func NewUser(ID, name string, payAmount int64) *User {
 	u.Name = name
 	u.PayAmount = payAmount
 
-	u.CreatedAt = nowInJST()
-	u.UpdatedAt = nowInJST()
+	now := timeutil.Now()
+	u.CreatedAt = now
+	u.UpdatedAt = now
 
 	return u
 }
 
 func (u *User) Touch() {
-	u.UpdatedAt = nowInJST()
-}
-
-func nowInJST() time.Time {
-	// TZ environment variable is set, but also set in code.
-	return flextime.Now().In(JST)
+	u.UpdatedAt = timeutil.Now()
 }
