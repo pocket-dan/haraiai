@@ -34,6 +34,20 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// CreatePayment mocks base method.
+func (m *MockStore) CreatePayment(arg0 string, arg1 *store.Payment) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePayment", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreatePayment indicates an expected call of CreatePayment.
+func (mr *MockStoreMockRecorder) CreatePayment(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePayment", reflect.TypeOf((*MockStore)(nil).CreatePayment), arg0, arg1)
+}
+
 // DeleteGroup mocks base method.
 func (m *MockStore) DeleteGroup(arg0 string) error {
 	m.ctrl.T.Helper()

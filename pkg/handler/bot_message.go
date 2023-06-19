@@ -251,8 +251,8 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 	}
 
 	// Save a new payment if it's valid message.
-	if payAmount, err := extractPayAmount(message.Text); err == nil {
-		if err := bh.addNewPayment(event, group, payAmount); err != nil {
+	if title, payAmount, err := parsePaymentText(message.Text); err == nil {
+		if err := bh.addNewPayment(event, group, title, payAmount); err != nil {
 			return err
 		}
 
@@ -370,9 +370,22 @@ func (bh *BotHandlerImpl) replyEvenUpComplete(
 		return nil
 	}
 
+	// FIXME: operate group and payment using a transaction
+
+	// Record payment
+	payment := new(store.Payment)
+	payment.Name = "清算"
+	payment.Amount = whoPayALot.PayAmount - whoPayLess.PayAmount
+	payment.Type = store.PAYMENT_TYPE_EVEN_UP
+	payment.PayerID = whoPayLess.ID
+
+	if err := bh.store.CreatePayment(group.ID, payment); err != nil {
+		return err
+	}
+
+	// Event up
 	whoPayLess.PayAmount = whoPayALot.PayAmount
 	whoPayLess.Touch()
-
 	if err := bh.store.SaveGroup(group); err != nil {
 		return err
 	}
@@ -385,14 +398,28 @@ func (bh *BotHandlerImpl) replyEvenUpComplete(
 	return nil
 }
 
-func (bh *BotHandlerImpl) addNewPayment(event *linebot.Event, group *store.Group, payAmount int) error {
+func (bh *BotHandlerImpl) addNewPayment(event *linebot.Event, group *store.Group, title string, amount int) error {
 	senderID := event.Source.UserID
 	sender, ok := group.Members[senderID]
 	if !ok {
 		return fmt.Errorf("sender is not found in group (ID=%s)", group.ID)
 	}
 
-	sender.PayAmount += int64(payAmount)
+	// FIXME: operate group and payment using a transaction
+
+	// Record payment
+	payment := new(store.Payment)
+	payment.Name = title
+	payment.Amount = int64(amount)
+	payment.Type = store.PAYMENT_TYPE_DEFAULT
+	payment.PayerID = senderID
+
+	if err := bh.store.CreatePayment(group.ID, payment); err != nil {
+		return err
+	}
+
+	// Plus payAmount
+	sender.PayAmount += int64(amount)
 	sender.Touch()
 
 	if err := bh.store.SaveGroup(group); err != nil {
@@ -479,18 +506,31 @@ func (bh *BotHandlerImpl) replyToNewPayment(event *linebot.Event, text string) e
 	return nil
 }
 
-func extractPayAmount(text string) (int, error) {
+func parsePaymentText(text string) (string, int, error) {
 	lines := strings.Split(strings.Trim(text, "\n"), "\n")
 	if len(lines) != 2 {
-		return 0, errors.New("Not supported text due to not 2 lines.")
+		return "", 0, errors.New("Not supported text due to not 2 lines.")
 	}
 
-	const REMOVE_CHARS = " \n\\¥円"
-	trimmed := strings.Trim(lines[1], REMOVE_CHARS)
+	title := parsePaymentTitle(lines[0])
+	amount, err := parsePayAmount(lines[1])
+	if err != nil {
+		return "", 0, fmt.Errorf("2nd line text is not number: %w", err)
+	}
+
+	return title, amount, nil
+}
+
+func parsePaymentTitle(text string) string {
+	return strings.Trim(text, "\n ")
+}
+
+func parsePayAmount(text string) (int, error) {
+	trimmed := strings.Trim(text, " \n\\¥円")
 
 	value, err := strconv.Atoi(trimmed)
 	if err != nil {
-		return 0, fmt.Errorf("Not supported text due to 2nd line is not number: %w", err)
+		return 0, fmt.Errorf("Failed to parse '%s' as integer: %w", text, err)
 	}
 
 	return value, nil

@@ -3,13 +3,10 @@ package store
 import (
 	"time"
 
-	"github.com/Songmu/flextime"
+	"github.com/raahii/haraiai/pkg/timeutil"
 )
 
-var (
-	JST = time.FixedZone("Asia/Tokyo", 9*60*60)
-)
-
+// Group
 type Group struct {
 	ID         string           `json:"id"`
 	Members    map[string]*User `json:"members"`
@@ -34,18 +31,39 @@ func NewGroup(ID string, status GroupStatus) *Group {
 
 	g.Members = map[string]*User{}
 
-	g.CreatedAt = nowInJST()
-	g.UpdatedAt = nowInJST()
+	now := timeutil.Now()
+	g.CreatedAt = now
+	g.UpdatedAt = now
 
 	return g
 }
 
+// Payment
+type Payment struct {
+	ID        string
+	Name      string
+	Amount    int64
+	Type      PaymentType
+	PayerID   string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type PaymentType string
+
+const (
+	PAYMENT_TYPE_DEFAULT PaymentType = "DEFAULT" // 通常の支払い
+	PAYMENT_TYPE_EVEN_UP PaymentType = "EVEN_UP" // 清算
+)
+
+// User
 type User struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	PayAmount int64     `json:"pay_amount"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID               string    `json:"id"`
+	Name             string    `json:"name"`
+	PayAmount        int64     `json:"pay_amount"`
+	InitialPayAmount int64     `json:"initial_pay_amount"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 func NewUser(ID, name string, payAmount int64) *User {
@@ -54,17 +72,13 @@ func NewUser(ID, name string, payAmount int64) *User {
 	u.Name = name
 	u.PayAmount = payAmount
 
-	u.CreatedAt = nowInJST()
-	u.UpdatedAt = nowInJST()
+	now := timeutil.Now()
+	u.CreatedAt = now
+	u.UpdatedAt = now
 
 	return u
 }
 
 func (u *User) Touch() {
-	u.UpdatedAt = nowInJST()
-}
-
-func nowInJST() time.Time {
-	// TZ environment variable is set, but also set in code.
-	return flextime.Now().In(JST)
+	u.UpdatedAt = timeutil.Now()
 }

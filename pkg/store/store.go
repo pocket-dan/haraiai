@@ -9,17 +9,21 @@ import (
 	"os"
 
 	"cloud.google.com/go/firestore"
+	"github.com/oklog/ulid/v2"
+	"github.com/raahii/haraiai/pkg/timeutil"
 	"google.golang.org/api/option"
 )
 
 const (
-	GROUP_COLLECTION_ID = "groups"
+	GROUP_COLLECTION_ID   = "groups"
+	PAYMENT_COLLECTION_ID = "payments"
 )
 
 type Store interface {
 	GetGroup(string) (*Group, error)
 	SaveGroup(*Group) error
 	DeleteGroup(string) error
+	CreatePayment(string, *Payment) error
 }
 
 type StoreImpl struct {
@@ -80,7 +84,7 @@ func (s *StoreImpl) GetGroup(groupID string) (*Group, error) {
 
 // SaveGroup update a group.
 func (s *StoreImpl) SaveGroup(group *Group) error {
-	group.UpdatedAt = nowInJST()
+	group.UpdatedAt = timeutil.Now()
 
 	ctx := context.Background()
 
@@ -102,6 +106,28 @@ func (s *StoreImpl) DeleteGroup(groupID string) error {
 	_, err := doc.Delete(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete group: %w", err)
+	}
+
+	return nil
+}
+
+// CreatePayment create a payment in the group.
+func (s *StoreImpl) CreatePayment(groupID string, payment *Payment) error {
+	payment.ID = ulid.Make().String()
+
+	now := timeutil.Now()
+	payment.CreatedAt = now
+	payment.UpdatedAt = now
+
+	ctx := context.Background()
+
+	doc := s.client.
+		Collection(GROUP_COLLECTION_ID).Doc(groupID).
+		Collection(PAYMENT_COLLECTION_ID).Doc(payment.ID)
+
+	_, err := doc.Set(ctx, payment)
+	if err != nil {
+		return fmt.Errorf("failed to add payment to group(id=%s): %w", groupID, err)
 	}
 
 	return nil
