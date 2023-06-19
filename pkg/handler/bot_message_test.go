@@ -75,6 +75,7 @@ func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
 			assert.Equal(t, SENDER_ID, newUser.ID)
 			assert.Equal(t, "太郎", newUser.Name)
 			assert.Equal(t, int64(0), newUser.PayAmount)
+			assert.Equal(t, int64(0), newUser.InitialPayAmount)
 		})
 
 		// Test handler.handleTextMessage call.
@@ -127,6 +128,7 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 			assert.Equal(t, SENDER_ID, newUser.ID)
 			assert.Equal(t, "花子", newUser.Name)
 			assert.Equal(t, int64(0), newUser.PayAmount)
+			assert.Equal(t, int64(0), newUser.InitialPayAmount)
 		})
 
 		// Test handler.handleTextMessage call.
@@ -218,11 +220,12 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 			assert.Len(t, newGroup.Members, 2)
 			assert.Equal(t, TIME_GROUP_CREATED, group.CreatedAt)
 
-			expectedWario := newTaroUser(2000)
+			expectedTaro := newTaroUser(2000)
 			actual := newGroup.Members[TARO_ID]
-			assert.Equal(t, expectedWario.ID, actual.ID)
-			assert.Equal(t, expectedWario.Name, actual.Name)
-			assert.Equal(t, expectedWario.PayAmount, actual.PayAmount)
+			assert.Equal(t, expectedTaro.ID, actual.ID)
+			assert.Equal(t, expectedTaro.Name, actual.Name)
+			assert.Equal(t, expectedTaro.PayAmount, actual.PayAmount)
+			assert.Equal(t, expectedTaro.InitialPayAmount, actual.InitialPayAmount)
 
 			assert.Equal(t, group.Members[HANAKO_ID], newGroup.Members[HANAKO_ID])
 		}).
@@ -404,9 +407,15 @@ func TestHandleTextMessage_evenUpComplete_success(t *testing.T) {
 			assert.Equal(t, store.GROUP_STARTED, newGroup.Status)
 			assert.Len(t, newGroup.Members, 2)
 
-			wario, exists := newGroup.Members[HANAKO_ID]
+			hanako, exists := newGroup.Members[HANAKO_ID]
 			assert.True(t, exists)
-			assert.Equal(t, int64(4000), wario.PayAmount)
+			assert.Equal(t, int64(4000), hanako.PayAmount)
+			assert.Equal(t, int64(0), hanako.InitialPayAmount)
+
+			taro, exists := newGroup.Members[TARO_ID]
+			assert.True(t, exists)
+			assert.Equal(t, int64(4000), taro.PayAmount)
+			assert.Equal(t, int64(200), taro.InitialPayAmount)
 		})
 
 		// Check reply message.
@@ -565,6 +574,7 @@ func TestHandleNameChange(t *testing.T) {
 
 					// should not be changed
 					assert.Equal(t, int64(0), taro.PayAmount)
+					assert.Equal(t, int64(200), taro.InitialPayAmount)
 
 					hanako, exists := newGroup.Members[HANAKO_ID]
 					assert.Equal(t, hanako, newHanakoUser(0))
@@ -674,20 +684,22 @@ func newTestGroup(ID string, status store.GroupStatus, members []*store.User) *s
 
 func newTaroUser(payAmount int64) *store.User {
 	return &store.User{
-		ID:        TARO_ID,
-		Name:      "太郎",
-		PayAmount: payAmount,
-		CreatedAt: TIME_GROUP_CREATED,
-		UpdatedAt: TIME_GROUP_CREATED,
+		ID:               TARO_ID,
+		Name:             "太郎",
+		PayAmount:        payAmount,
+		InitialPayAmount: 200,
+		CreatedAt:        TIME_GROUP_CREATED,
+		UpdatedAt:        TIME_GROUP_CREATED,
 	}
 }
 
 func newHanakoUser(payAmount int64) *store.User {
 	return &store.User{
-		ID:        HANAKO_ID,
-		Name:      "花子",
-		PayAmount: payAmount,
-		CreatedAt: TIME_GROUP_CREATED,
-		UpdatedAt: TIME_GROUP_CREATED,
+		ID:               HANAKO_ID,
+		Name:             "花子",
+		PayAmount:        payAmount,
+		InitialPayAmount: 0,
+		CreatedAt:        TIME_GROUP_CREATED,
+		UpdatedAt:        TIME_GROUP_CREATED,
 	}
 }
