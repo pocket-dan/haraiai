@@ -3,14 +3,18 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
+	"github.com/raahii/haraiai/pkg/flexmessage"
 	"github.com/raahii/haraiai/pkg/store"
+	"github.com/raahii/haraiai/pkg/timeutil"
 	"github.com/samber/lo"
+	"google.golang.org/api/iterator"
 )
 
 const (
@@ -20,63 +24,20 @@ const (
 	TUTORIAL_PAYMENT_MESSAGE        = "例: お昼ごはん代\n3000"
 	TUTORIAL_PAYMENT_CANCEL_MESSAGE = "例: お昼ごはん代\n-3000"
 
-	TOTAL_UP_MESSAGE         = "集計"
-	EVEN_UP_COMPLETE_MESSAGE = "清算完了"
-	HELP_MESSAGE             = "ヘルプ"
-	TOTAL_UP_PREFIX          = "支払った総額は..."
+	TOTAL_UP_MESSAGE = "集計"
+	HELP_MESSAGE     = "ヘルプ"
+	TOTAL_UP_PREFIX  = "支払った総額は..."
+
+	LIQUIDATION_PARTIAL_MESSAGE = "特定期間のみ清算する"
+	LIQUIDATION_CALC_MESSAGE    = "清算額を計算"
+	LIQUIDATION_DONE_MESSAGE    = "清算完了"
 
 	CHANGE_NAME_MESSAGE_PREFIX = "名前を"
 	CHANGE_NAME_MESSAGE_SUFFIX = "に変更"
 
 	DONE_REPLY_MESSAGE = "👍"
 
-	EVEN_UP_CONFIRMATION_TEMPLATE_JSON string = `
-  {
-    "type": "bubble",
-    "size": "mega",
-    "header": {
-      "type": "box",
-      "layout": "vertical",
-      "contents": [
-      {
-        "type": "text",
-        "text": "清算します。渡しましたか？\n（2回以上タップしないでね）",
-        "color": "#ffffff",
-        "align": "start",
-        "size": "md",
-        "gravity": "center",
-        "wrap": true
-      }
-      ],
-      "backgroundColor": "#27ACB2",
-      "paddingTop": "19px",
-      "paddingAll": "12px",
-      "paddingBottom": "16px"
-    },
-    "body": {
-      "type": "box",
-      "layout": "vertical",
-      "contents": [
-      {
-        "type": "button",
-        "action": {
-          "type": "message",
-          "label": "はい",
-          "text": "清算完了"
-        },
-        "height": "sm"
-      }
-      ],
-      "spacing": "md",
-      "paddingAll": "12px"
-    },
-    "styles": {
-      "footer": {
-        "separator": false
-      }
-    }
-  }
-  `
+	FULL_DATE_FORMAT = "2006-01-02"
 )
 
 var (
@@ -93,7 +54,7 @@ var (
 		"ニックネームを変えたい",
 	}
 
-	MESSAGES_FOR_EVEN_UP = []string{
+	MESSAGES_FOR_LIQUIDATION = []string{
 		"清算",
 		"清算したい",
 		"精算",
@@ -149,18 +110,7 @@ var (
 		linebot.NewTextMessage("お疲れさまでした！使い方の説明はおしまいです！😄"),
 		linebot.NewTextMessage("わからないことがあったら ヘルプ と声をかけてね"),
 	}
-
-	// Will be initialized from json string after start up.
-	EVEN_UP_CONFIRMATION_REPLY linebot.SendingMessage
 )
-
-func init() {
-	flexContents, err := linebot.UnmarshalFlexMessageJSON([]byte(EVEN_UP_CONFIRMATION_TEMPLATE_JSON))
-	if err != nil {
-		panic("failed to initialize flex contents for even up")
-	}
-	EVEN_UP_CONFIRMATION_REPLY = linebot.NewFlexMessage("清算しましたか？", flexContents)
-}
 
 // Entry point of handing text type webhook event
 func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *linebot.TextMessage) error {
@@ -168,7 +118,7 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 		return nil
 	}
 
-	// HACK: Don't access database every time
+	// FIXME: Don't access database every time
 	groupID := event.Source.GroupID
 	group, err := bh.store.GetGroup(groupID)
 	if err != nil {
@@ -210,17 +160,33 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 		return nil
 	}
 
-	// Even up payment amount.
-	if lo.Contains(MESSAGES_FOR_EVEN_UP, message.Text) {
-		if err := bh.replyEvenUpConfirmation(event, group); err != nil {
+	// Liquidation start.
+	if lo.Contains(MESSAGES_FOR_LIQUIDATION, message.Text) {
+		if err := bh.replyLiquidationStart(event, group); err != nil {
 			return err
 		}
 		return nil
 	}
 
-	// Complete even up payment amount.
-	if message.Text == EVEN_UP_COMPLETE_MESSAGE {
-		if err := bh.replyEvenUpComplete(event, group); err != nil {
+	// Liquidate against payments in a specific period.
+	if message.Text == LIQUIDATION_PARTIAL_MESSAGE {
+		if err := bh.replyPartialLiquidationStart(event, group); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	// Calculate liquidation amount.
+	if message.Text == LIQUIDATION_CALC_MESSAGE {
+		if err := bh.replyLiquidationAmount(event, group); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	// Complete liquidation.
+	if message.Text == LIQUIDATION_DONE_MESSAGE {
+		if err := bh.replyLiquidationComplete(event, group); err != nil {
 			return err
 		}
 		return nil
@@ -306,7 +272,7 @@ func (bh *BotHandlerImpl) replyTotalUpResult(
 	replyMessages := []linebot.SendingMessage{}
 
 	replyMessages = append(replyMessages, linebot.NewTextMessage(
-		createPayAmountResultMessage(extractSortedUsers(group.Members)),
+		createPayAmountResultMessage(listMembers(group.Members)),
 	))
 
 	if group.IsTutorial {
@@ -326,29 +292,123 @@ func (bh *BotHandlerImpl) replyTotalUpResult(
 	return nil
 }
 
-func (bh *BotHandlerImpl) replyEvenUpConfirmation(
+func (bh *BotHandlerImpl) replyLiquidationStart(
 	event *linebot.Event,
 	group *store.Group,
 ) error {
-	members := extractSortedUsers(group.Members)
-	sortUsersByPayAmountDesc(members)
+	liquidation := store.Liquidation{}
+	err := bh.store.CreateLiquidation(group.ID, liquidation)
+	if err != nil {
+		return fmt.Errorf("failed to create liquidation(groupId=%s): %w", group.ID, err)
+	}
 
-	whoPayALot, whoPayLess := members[0], members[1]
+	params := flexmessage.LiquidationModeParams{
+		SelectWholeModeText:   LIQUIDATION_CALC_MESSAGE,
+		SelectPartialModeText: LIQUIDATION_PARTIAL_MESSAGE,
+	}
 
-	replyMessages := []linebot.SendingMessage{}
-	if whoPayALot.PayAmount == whoPayLess.PayAmount {
-		textMessage := linebot.NewTextMessage("払った額は同じ！清算の必要はないよ")
-		replyMessages = append(replyMessages, textMessage)
+	replyMessage, err := flexmessage.BuildLiquidationModeSelectionMessage(params)
+	if err != nil {
+		return err
+	}
+
+	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessage); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (bh *BotHandlerImpl) replyPartialLiquidationStart(
+	event *linebot.Event,
+	group *store.Group,
+) error {
+	serviceStartAt := timeutil.NewDate(2023, 6, 23)
+
+	minDate := timeutil.Max(serviceStartAt, group.CreatedAt).Format(FULL_DATE_FORMAT)
+	today := timeutil.Now().Format(FULL_DATE_FORMAT)
+	yesterday := timeutil.Now().AddDate(0, 0, -1).Format(FULL_DATE_FORMAT)
+
+	params := flexmessage.LiquidationInputPeriodParams{
+		DoneMessageText: LIQUIDATION_CALC_MESSAGE,
+		StartDate: flexmessage.LiqudationSelectDateParams{
+			Data:        POSTBACK_LIQUIDATION_START_DATE,
+			InitialDate: yesterday,
+			MinDate:     minDate,
+			MaxDate:     today,
+		},
+		EndDate: flexmessage.LiqudationSelectDateParams{
+			Data:        POSTBACK_LIQUIDATION_END_DATE,
+			InitialDate: today,
+			MinDate:     minDate,
+			MaxDate:     today,
+		},
+	}
+
+	flexMessage, err := flexmessage.BuildLiquidationPeriodInputMessage(params)
+	if err != nil {
+		return err
+	}
+
+	if err := bh.bot.ReplyMessage(event.ReplyToken, flexMessage); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (bh *BotHandlerImpl) replyLiquidationAmount(
+	event *linebot.Event,
+	group *store.Group,
+) error {
+	liquidation, err := bh.store.GetLiquidation(group.ID)
+	if err != nil {
+		return err
+	}
+
+	var liquidationAmount int64
+	var whoPayALot *store.User
+	var whoPayLess *store.User
+	if liquidation.Period == nil {
+		liquidationAmount, whoPayALot, whoPayLess = bh.calcWholeLiquidationAmount(group)
 	} else {
-		d := (whoPayALot.PayAmount - whoPayLess.PayAmount) / 2
-		text := fmt.Sprintf("%sさんは%sさんに %d 円渡してね🙏", whoPayLess.Name, whoPayALot.Name, d)
-		textMessage := linebot.NewTextMessage(text)
+		var err error
+		liquidationAmount, whoPayALot, whoPayLess, err = bh.calcPartialLiquidationAmount(group, liquidation.Period)
+		if err != nil {
+			return fmt.Errorf("failed to calculate liquidation amount in the period: %w", err)
+		}
+	}
 
-		replyMessages = append(
-			replyMessages,
-			textMessage,
-			EVEN_UP_CONFIRMATION_REPLY,
-		)
+	log.Println(liquidationAmount, whoPayALot, whoPayLess)
+
+	liquidation.Amount = liquidationAmount
+	liquidation.PayerID = whoPayLess.ID
+	err = bh.store.UpdateLiquidation(group.ID, liquidation)
+	if err != nil {
+		return fmt.Errorf("failed to update partial liquidation (groupId=%s): %w", group.ID, err)
+	}
+
+	if liquidationAmount == 0 {
+		textMessage := linebot.NewTextMessage("払った額は同じ！清算の必要はないよ")
+
+		if err := bh.bot.ReplyMessage(event.ReplyToken, textMessage); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	params := flexmessage.LiquidationConfirmationParams{
+		OkMessageText: LIQUIDATION_DONE_MESSAGE,
+	}
+	confirmationMessage, err := flexmessage.BuildLiquidationConfirmationMessage(params)
+	if err != nil {
+		return err
+	}
+
+	text := fmt.Sprintf("%sさんは%sさんに %d 円渡してね🙏", whoPayLess.Name, whoPayALot.Name, liquidationAmount)
+	replyMessages := []linebot.SendingMessage{
+		linebot.NewTextMessage(text),
+		confirmationMessage,
 	}
 
 	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessages...); err != nil {
@@ -358,37 +418,98 @@ func (bh *BotHandlerImpl) replyEvenUpConfirmation(
 	return nil
 }
 
-func (bh *BotHandlerImpl) replyEvenUpComplete(
+func (bh *BotHandlerImpl) calcWholeLiquidationAmount(
+	group *store.Group,
+) (int64, *store.User, *store.User) {
+	members := listMembers(group.Members)
+	sortUsersByPayAmountDesc(members)
+	whoPayALot, whoPayLess := members[0], members[1]
+	liquidationAmount := (whoPayALot.PayAmount - whoPayLess.PayAmount) / 2
+	return liquidationAmount, whoPayALot, whoPayLess
+}
+
+func (bh *BotHandlerImpl) calcPartialLiquidationAmount(
+	group *store.Group,
+	period *store.DateRange,
+) (int64, *store.User, *store.User, error) {
+	members := listMembers(group.Members)
+	payAmountMap := map[string]int64{}
+	for _, user := range members {
+		payAmountMap[user.ID] = 0
+	}
+
+	iter, err := bh.store.SelectPaymentsBetweenCreatedAt(group.ID, *period)
+	if err != nil {
+		return 0, nil, nil, err
+	}
+
+	log.Printf("iterate satrt: %v\n", period)
+	for {
+		docsnap, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return 0, nil, nil, err
+		}
+
+		payment := new(store.Payment)
+		if err := docsnap.DataTo(payment); err != nil {
+			return 0, nil, nil, fmt.Errorf("failed to unmarshal payment data to struct: %w", err)
+		}
+		log.Printf("found payment %+v\n", payment)
+
+		payAmountMap[payment.PayerID] += payment.Amount
+	}
+	log.Printf("iterate finished: %v\n", payAmountMap)
+
+	userA := members[0]
+	amountA := payAmountMap[userA.ID]
+
+	userB := members[1]
+	amountB := payAmountMap[userB.ID]
+
+	if amountA > amountB {
+		d := (amountA - amountB) / 2
+		return d, userA, userB, nil
+	} else {
+		d := (amountB - amountA) / 2
+		return d, userB, userA, nil
+	}
+}
+
+func (bh *BotHandlerImpl) replyLiquidationComplete(
 	event *linebot.Event,
 	group *store.Group,
 ) error {
-	members := extractSortedUsers(group.Members)
-	sortUsersByPayAmountDesc(members)
-	whoPayALot, whoPayLess := members[0], members[1]
-
-	if whoPayALot.PayAmount == whoPayLess.PayAmount {
-		return nil
+	// Get liquidation
+	liquidation, err := bh.store.GetLiquidation(group.ID)
+	if err != nil {
+		return fmt.Errorf("liquidation not found (groupID=%s): %w", group.ID, err)
 	}
 
 	// FIXME: operate group and payment using a transaction
 
+	// Liquidation
+	payer := group.Members[liquidation.PayerID]
+	payer.PayAmount += liquidation.Amount * 2
+	payer.Touch()
+	if err := bh.store.SaveGroup(group); err != nil {
+		return err
+	}
+
 	// Record payment
 	payment := new(store.Payment)
 	payment.Name = "清算"
-	payment.Amount = whoPayALot.PayAmount - whoPayLess.PayAmount
-	payment.Type = store.PAYMENT_TYPE_EVEN_UP
-	payment.PayerID = whoPayLess.ID
+	payment.Amount = liquidation.Amount
+	payment.PayerID = liquidation.PayerID
+	payment.Type = store.PAYMENT_TYPE_LIQUIDATION
 
 	if err := bh.store.CreatePayment(group.ID, payment); err != nil {
 		return err
 	}
 
-	// Event up
-	whoPayLess.PayAmount = whoPayALot.PayAmount
-	whoPayLess.Touch()
-	if err := bh.store.SaveGroup(group); err != nil {
-		return err
-	}
+	bh.store.DeleteLiquidation(group.ID)
 
 	replyMessage := linebot.NewTextMessage(DONE_REPLY_MESSAGE)
 	if err := bh.bot.ReplyMessage(event.ReplyToken, replyMessage); err != nil {
@@ -566,7 +687,7 @@ func sortUsersByPayAmountDesc(users []*store.User) {
 	})
 }
 
-func extractSortedUsers(m map[string]*store.User) []*store.User {
+func listMembers(m map[string]*store.User) []*store.User {
 	v := make([]*store.User, 0, len(m))
 	for _, e := range m {
 		v = append(v, e)

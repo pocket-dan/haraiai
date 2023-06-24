@@ -52,8 +52,8 @@ type Payment struct {
 type PaymentType string
 
 const (
-	PAYMENT_TYPE_DEFAULT PaymentType = "DEFAULT" // 通常の支払い
-	PAYMENT_TYPE_EVEN_UP PaymentType = "EVEN_UP" // 清算
+	PAYMENT_TYPE_DEFAULT     PaymentType = "DEFAULT"     // 通常の支払い
+	PAYMENT_TYPE_LIQUIDATION PaymentType = "LIQUIDATION" // 清算
 )
 
 // User
