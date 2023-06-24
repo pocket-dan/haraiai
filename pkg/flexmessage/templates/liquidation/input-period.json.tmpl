@@ -1,0 +1,77 @@
+{
+  "type": "bubble",
+  "size": "mega",
+  "header": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "清算したい期間を教えてね",
+        "color": "#ffffff",
+        "align": "start",
+        "size": "md",
+        "gravity": "center",
+        "wrap": true
+      }
+    ],
+    "backgroundColor": "#27ACB2",
+    "paddingBottom": "10px",
+    "paddingTop": "10px"
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "button",
+            "action": {
+              "type": "datetimepicker",
+              "mode": "date",
+              "label": "開始日を選択",
+              "data":    "{{.StartDate.Data}}",
+              "initial": "{{.StartDate.InitialDate}}",
+              "max":     "{{.StartDate.MaxDate}}",
+              "min":     "{{.StartDate.MinDate}}"
+            },
+            "height": "sm"
+          },
+          {
+            "type": "button",
+            "action": {
+              "type": "datetimepicker",
+              "mode": "date",
+              "label": "終了日を選択",
+              "data":    "{{.EndDate.Data}}",
+              "initial": "{{.EndDate.InitialDate}}",
+              "max":     "{{.EndDate.MaxDate}}",
+              "min":     "{{.EndDate.MinDate}}"
+            },
+            "height": "sm"
+          }
+        ]
+      },
+      {
+        "type": "button",
+        "action": {
+          "type": "message",
+          "label": "確定",
+          "text": "{{.DoneMessageText}}"
+        },
+        "offsetBottom": "4px",
+        "height": "sm"
+      }
+    ],
+    "spacing": "md",
+    "paddingAll": "2px"
+  },
+  "styles": {
+    "footer": {
+      "separator": false
+    }
+  }
+}

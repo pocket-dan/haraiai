@@ -1,0 +1,55 @@
+{
+  "type": "bubble",
+  "size": "mega",
+  "header": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "すべて清算しますか？\n特定期間の支出のみ清算しますか？",
+        "color": "#ffffff",
+        "align": "start",
+        "size": "md",
+        "gravity": "center",
+        "wrap": true
+      }
+    ],
+    "backgroundColor": "#27ACB2",
+    "paddingBottom": "10px",
+    "paddingTop": "10px"
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "button",
+        "action": {
+          "type": "message",
+          "label": "すべて清算",
+          "text": "{{.SelectWholeModeText}}"
+        },
+        "height": "sm",
+        "offsetTop": "4px"
+      },
+      {
+        "type": "button",
+        "action": {
+          "type": "message",
+          "label": "特定期間のみ清算",
+          "text": "{{.SelectPartialModeText}}"
+        },
+        "height": "sm",
+        "offsetBottom": "5px"
+      }
+    ],
+    "spacing": "md",
+    "paddingAll": "2px"
+  },
+  "styles": {
+    "footer": {
+      "separator": false
+    }
+  }
+}

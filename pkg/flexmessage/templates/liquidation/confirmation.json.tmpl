@@ -1,0 +1,44 @@
+{
+  "type": "bubble",
+  "size": "mega",
+  "header": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "清算します。渡しましたか？",
+        "color": "#ffffff",
+        "align": "start",
+        "size": "md",
+        "gravity": "center",
+        "wrap": true
+      }
+    ],
+    "backgroundColor": "#27ACB2",
+    "paddingBottom": "10px",
+    "paddingTop": "10px"
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "button",
+        "action": {
+          "type": "message",
+          "label": "はい",
+          "text": "{{.OkMessageText}}"
+        },
+        "height": "sm"
+      }
+    ],
+    "spacing": "md",
+    "paddingAll": "4px"
+  },
+  "styles": {
+    "footer": {
+      "separator": false
+    }
+  }
+}
