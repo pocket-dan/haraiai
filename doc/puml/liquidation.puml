@@ -1,0 +1,99 @@
+@startuml
+title haraiai - 清算フロー
+
+actor userA as u
+actor userB as uB
+
+participant "LINE app" as c
+
+participant haraiai as s
+database datastore as d
+
+== 清算の開始 ==
+
+u -> c: '清算'と送信
+activate c
+c -> s: メッセージイベント\n'清算'
+s -> d: liquidation (ID=group_id) を作成\n - period: null\n - payer_id: ""\n - amount: 0
+note right
+    まだ期間が未定のためほぼ空のデータが入る
+    以後、清算フローに関連するメッセージイベントが来ても
+    liqudationがない場合はイベントをスキップする
+end note
+c <-- s:
+c <-- s: flex message\n全期間 or 特定期間?
+deactivate c
+
+== 清算モードの設定 ==
+alt 全期間での清算
+u -> c: 全期間を選択
+else 特定期間での清算
+u -> c: 特定期間を選択
+activate c
+c -> s: メッセージイベント\n'特定期間で清算する'
+s -> d: liquidation の取得
+s <-- d
+c <-- s: flex message\n開始日と終了日を選択
+deactivate c
+
+u -> c: 開始日を選択
+activate c
+c -> s: ポストバックイベント\n - data: "start_date"\n - params: "2023-02-01"
+s -> d: liquidationを更新\n - period.start: 2023-02-01T00:00:00
+c <-- s:
+deactivate c
+
+u -> c: 終了日を選択
+activate c
+c -> s: ポストバックイベント\n - data: "end_date"\n - params: "2023-03-01"
+s -> d: liquidationを更新\n - period.start: 2023-03-02T00:00:00
+note right : 終了日も含めたいので\n1日追加して0時に設定する
+c <-- s:
+deactivate c
+
+u -> c: 確定を選択
+end alt
+
+== 清算額計算 ==
+c -> s: メッセージイベント\n'清算額を計算'
+activate c
+s -> d: liquidationの取得
+s <-- d
+alt liquidation.period == null -> 全期間での清算
+s -> d: groupの取得
+note right : 便宜的に記載\nメッセージイベント受け取ったらまずgroupは取得される
+s <-- d: group:\n - members[userA].pay_amount: 14000\n - membres[userB].pay_amount: 8000
+s -> s: groupに記録されている合計支払額を使用\n支払いが多いユーザーID、少ないユーザーID、支払い差額/2を算出
+s -> d: liquidationを更新\n - amount: 3000\n - payerID=userB.ID
+c <-- s: text message\n'userBさんはuserAさんに3000円渡してね'
+else liquidation.period != null -> 特定期間での清算
+s -> d: liquidation.periodの範囲で作成されたpaymentを取得
+s <-- d: payment1: user_id=userA.ID, amount: 2500, ...
+s <-- d: payment2: user_id=userB.ID, amount: 500, ...
+...
+s -> s: グループメンバー毎に支払額の合計を計算\n支払いが多いユーザーID、少ないユーザーID、支払い差額/2を算出
+s -> d: liquidationを更新\n - amount: 1000\n - payerID=userB.ID
+c <-- s: text message\n'userBさんはuserAさんに1000円渡してね'
+end alt
+
+c <-- s: flex message\n渡したか確認ボタン
+deactivate c
+
+== 清算完了 ==
+create uB
+u -> uB : 3000円ちょうだい
+u <-- uB : あいよ
+
+u -> c: 渡した確認ボタンを押す
+note right: userBが押しても問題ない
+c -> s: メッセージイベント\n'清算完了'
+s -> d: groupの取得
+s <-- d:
+s -> d: liquidationの取得
+s <-- d
+s -> s: groupを変更、liquidation.payerIDにliquidation.amountの2倍を足す
+s -> d : groupを更新
+s -> d : liquidationを削除
+c <-- s
+
+@enduml
