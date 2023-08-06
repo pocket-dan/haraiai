@@ -78,6 +78,9 @@ func (s *StoreImpl) BuildPayAmountMapBetweenCreatedAt(groupID string, period *Da
 		if err := docsnap.DataTo(payment); err != nil {
 			return payAmountMap, fmt.Errorf("failed to unmarshal payment data to struct: %w", err)
 		}
+		if payment.Type == PAYMENT_TYPE_LIQUIDATION {
+			continue
+		}
 
 		payAmountMap[payment.PayerID] += payment.Amount
 	}

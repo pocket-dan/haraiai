@@ -439,7 +439,7 @@ func (bh *BotHandlerImpl) calcPartialLiquidationAmount(
 
 	payAmountMap, err := bh.store.BuildPayAmountMapBetweenCreatedAt(group.ID, period)
 	if err != nil {
-		return 0, nil, nil, fmt.Errorf("failed to select and build pay amoount map (groupID=%s): %w", group.ID, err)
+		return 0, nil, nil, fmt.Errorf("failed to select and build pay amount map (groupID=%s): %w", group.ID, err)
 	}
 
 	userA := members[0]
