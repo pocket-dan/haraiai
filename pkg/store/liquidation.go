@@ -25,6 +25,21 @@ type Liquidation struct {
 	UpdatedAt time.Time  `firestore:"updated_at"`
 }
 
+func (l *Liquidation) IsValidLiquidationPeriod() bool {
+	if l.Period == nil {
+		return false
+	}
+
+	start := l.Period.Start
+	end := l.Period.End
+
+	if end.Before(start) || end.Sub(start) >= timeutil.DURATION_MONTH {
+		return false
+	}
+
+	return true
+}
+
 // GetLiquidation find a liquidation by ID.
 func (s *StoreImpl) GetLiquidation(groupID string) (*Liquidation, error) {
 	ctx := context.Background()

@@ -8,6 +8,8 @@ import (
 
 var (
 	JST = time.FixedZone("Asia/Tokyo", 9*60*60)
+
+	DURATION_MONTH = time.Hour * 24 * 30
 )
 
 func Now() time.Time {

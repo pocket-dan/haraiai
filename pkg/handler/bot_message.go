@@ -26,9 +26,10 @@ const (
 	HELP_MESSAGE     = "ヘルプ"
 	TOTAL_UP_PREFIX  = "支払った総額は..."
 
-	LIQUIDATION_PARTIAL_MESSAGE = "特定期間のみ清算する"
-	LIQUIDATION_CALC_MESSAGE    = "清算額を計算"
-	LIQUIDATION_DONE_MESSAGE    = "清算完了"
+	LIQUIDATION_PARTIAL_MESSAGE        = "特定期間のみ清算する"
+	LIQUIDATION_CALC_MESSAGE           = "清算額を計算"
+	LIQUIDATION_DONE_MESSAGE           = "清算完了"
+	LIQUIDATION_PERIOD_INVALID_MESSAGE = "期間が正しく選択されていないか、30日をこえているよ😢\nもう一度期間を選択してね！"
 
 	CHANGE_NAME_MESSAGE_PREFIX = "名前を"
 	CHANGE_NAME_MESSAGE_SUFFIX = "に変更"
@@ -376,6 +377,13 @@ func (bh *BotHandlerImpl) replyLiquidationAmount(
 		liquidationAmount, whoPayALot, whoPayLess = bh.calcWholeLiquidationAmount(group)
 	} else {
 		var err error
+		if !liquidation.IsValidLiquidationPeriod() {
+			textMessage := linebot.NewTextMessage(LIQUIDATION_PERIOD_INVALID_MESSAGE)
+			if err := bh.bot.ReplyMessage(event.ReplyToken, textMessage); err != nil {
+				return err
+			}
+			return nil
+		}
 		liquidationAmount, whoPayALot, whoPayLess, err = bh.calcPartialLiquidationAmount(group, liquidation.Period)
 		if err != nil {
 			return fmt.Errorf("failed to calculate liquidation amount in the period: %w", err)

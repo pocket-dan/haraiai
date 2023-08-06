@@ -64,7 +64,7 @@ func (bh *BotHandlerImpl) updateLiquidationStartDate(event *linebot.Event, group
 	}
 
 	// Notify date result
-	message := linebot.NewTextMessage("開始日: " + date)
+	message := linebot.NewTextMessage("開始日は" + date + "だね！")
 	err = bh.bot.ReplyMessage(event.ReplyToken, message)
 	if err != nil {
 		return fmt.Errorf("failed to reply message: %w", err)
@@ -99,7 +99,7 @@ func (bh *BotHandlerImpl) updateLiquidationEndDate(event *linebot.Event, group *
 	}
 
 	// Notify date result
-	message := linebot.NewTextMessage("終了日: " + date)
+	message := linebot.NewTextMessage("終了日は" + date + "だね！")
 	err = bh.bot.ReplyMessage(event.ReplyToken, message)
 	if err != nil {
 		return fmt.Errorf("failed to reply message: %w", err)
