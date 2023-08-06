@@ -14,7 +14,6 @@ import (
 	"github.com/raahii/haraiai/pkg/store"
 	"github.com/raahii/haraiai/pkg/timeutil"
 	"github.com/samber/lo"
-	"google.golang.org/api/iterator"
 )
 
 const (
@@ -296,8 +295,7 @@ func (bh *BotHandlerImpl) replyLiquidationStart(
 	event *linebot.Event,
 	group *store.Group,
 ) error {
-	liquidation := store.Liquidation{}
-	err := bh.store.CreateLiquidation(group.ID, liquidation)
+	err := bh.store.CreateLiquidation(group.ID, store.Liquidation{}) // upsert actually
 	if err != nil {
 		return fmt.Errorf("failed to create liquidation(groupId=%s): %w", group.ID, err)
 	}
@@ -323,6 +321,12 @@ func (bh *BotHandlerImpl) replyPartialLiquidationStart(
 	event *linebot.Event,
 	group *store.Group,
 ) error {
+	// Re-initialize liquidation to make liquidation sequence simple.
+	err := bh.store.CreateLiquidation(group.ID, store.Liquidation{})
+	if err != nil {
+		return fmt.Errorf("failed to create liquidation(groupId=%s): %w", group.ID, err)
+	}
+
 	serviceStartAt := timeutil.NewDate(2023, 6, 23)
 
 	minDate := timeutil.Max(serviceStartAt, group.CreatedAt).Format(FULL_DATE_FORMAT)
@@ -381,20 +385,22 @@ func (bh *BotHandlerImpl) replyLiquidationAmount(
 
 	log.Println(liquidationAmount, whoPayALot, whoPayLess)
 
-	liquidation.Amount = liquidationAmount
-	liquidation.PayerID = whoPayLess.ID
-	err = bh.store.UpdateLiquidation(group.ID, liquidation)
-	if err != nil {
-		return fmt.Errorf("failed to update partial liquidation (groupId=%s): %w", group.ID, err)
-	}
-
 	if liquidationAmount == 0 {
+		bh.store.DeleteLiquidation(group.ID)
+
 		textMessage := linebot.NewTextMessage("払った額は同じ！清算の必要はないよ")
 
 		if err := bh.bot.ReplyMessage(event.ReplyToken, textMessage); err != nil {
 			return err
 		}
 		return nil
+	}
+
+	liquidation.Amount = liquidationAmount
+	liquidation.PayerID = whoPayLess.ID
+	err = bh.store.UpdateLiquidation(group.ID, liquidation)
+	if err != nil {
+		return fmt.Errorf("failed to update partial liquidation (groupId=%s): %w", group.ID, err)
 	}
 
 	params := flexmessage.LiquidationConfirmationParams{
@@ -433,35 +439,11 @@ func (bh *BotHandlerImpl) calcPartialLiquidationAmount(
 	period *store.DateRange,
 ) (int64, *store.User, *store.User, error) {
 	members := listMembers(group.Members)
-	payAmountMap := map[string]int64{}
-	for _, user := range members {
-		payAmountMap[user.ID] = 0
-	}
 
-	iter, err := bh.store.SelectPaymentsBetweenCreatedAt(group.ID, *period)
+	payAmountMap, err := bh.store.BuildPayAmountMapBetweenCreatedAt(group.ID, period)
 	if err != nil {
-		return 0, nil, nil, err
+		return 0, nil, nil, fmt.Errorf("failed to select and build pay amoount map (groupID=%s): %w", group.ID, err)
 	}
-
-	log.Printf("iterate satrt: %v\n", period)
-	for {
-		docsnap, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return 0, nil, nil, err
-		}
-
-		payment := new(store.Payment)
-		if err := docsnap.DataTo(payment); err != nil {
-			return 0, nil, nil, fmt.Errorf("failed to unmarshal payment data to struct: %w", err)
-		}
-		log.Printf("found payment %+v\n", payment)
-
-		payAmountMap[payment.PayerID] += payment.Amount
-	}
-	log.Printf("iterate finished: %v\n", payAmountMap)
 
 	userA := members[0]
 	amountA := payAmountMap[userA.ID]
@@ -484,8 +466,9 @@ func (bh *BotHandlerImpl) replyLiquidationComplete(
 ) error {
 	// Get liquidation
 	liquidation, err := bh.store.GetLiquidation(group.ID)
-	if err != nil {
-		return fmt.Errorf("liquidation not found (groupID=%s): %w", group.ID, err)
+	if err != nil || liquidation.Amount <= 0 {
+		bh.store.DeleteLiquidation(group.ID)
+		return nil
 	}
 
 	// FIXME: operate group and payment using a transaction

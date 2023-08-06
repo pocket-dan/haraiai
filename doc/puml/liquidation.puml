@@ -1,5 +1,6 @@
 @startuml
 title haraiai - 清算フロー
+autonumber
 
 actor userA as u
 actor userB as uB
@@ -14,12 +15,7 @@ database datastore as d
 u -> c: '清算'と送信
 activate c
 c -> s: メッセージイベント\n'清算'
-s -> d: liquidation (ID=group_id) を作成\n - period: null\n - payer_id: ""\n - amount: 0
-note right
-    まだ期間が未定のためほぼ空のデータが入る
-    以後、清算フローに関連するメッセージイベントが来ても
-    liqudationがない場合はイベントをスキップする
-end note
+s -> d: liquidationを初期化(ID=group_id)\n - period: null\n - payer_id: ""\n - amount: 0
 c <-- s:
 c <-- s: flex message\n全期間 or 特定期間?
 deactivate c
@@ -30,8 +26,12 @@ u -> c: 全期間を選択
 else 特定期間での清算
 u -> c: 特定期間を選択
 activate c
-c -> s: メッセージイベント\n'特定期間で清算する'
-s -> d: liquidation の取得
+c -> s: メッセージイベント\n'特定期間のみ清算する'
+s -> d: liquidationを初期化
+note right
+    「特定期間で清算する」から進入しても良いよう
+    liquidationを再度初期化する (3と同じ)
+end note
 s <-- d
 c <-- s: flex message\n開始日と終了日を選択
 deactivate c
@@ -46,8 +46,8 @@ deactivate c
 u -> c: 終了日を選択
 activate c
 c -> s: ポストバックイベント\n - data: "end_date"\n - params: "2023-03-01"
-s -> d: liquidationを更新\n - period.start: 2023-03-02T00:00:00
-note right : 終了日も含めたいので\n1日追加して0時に設定する
+s -> d: liquidationを更新\n - period.end: 2023-03-02T00:00:00
+note right : 終了日も含めたいので\n次の日の0時に設定する
 c <-- s:
 deactivate c
 

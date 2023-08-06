@@ -16,6 +16,10 @@ const (
 )
 
 func (bh *BotHandlerImpl) handlePostbackData(event *linebot.Event) error {
+	if event.Source.Type != linebot.EventSourceTypeGroup {
+		return nil
+	}
+
 	groupID := event.Source.GroupID
 	group, err := bh.store.GetGroup(groupID)
 	if err != nil {
@@ -24,9 +28,9 @@ func (bh *BotHandlerImpl) handlePostbackData(event *linebot.Event) error {
 
 	switch event.Postback.Data {
 	case POSTBACK_LIQUIDATION_START_DATE:
-		err = bh.updateLiquidationStartDate(group, event.Postback.Params.Date)
+		err = bh.updateLiquidationStartDate(event, group)
 	case POSTBACK_LIQUIDATION_END_DATE:
-		err = bh.updateLiquidationEndDate(group, event.Postback.Params.Date)
+		err = bh.updateLiquidationEndDate(event, group)
 	default:
 		log.Printf("unhandled postback data found (data=%s, params=%s)\n", event.Postback.Data, event.Postback.Params)
 	}
@@ -34,7 +38,8 @@ func (bh *BotHandlerImpl) handlePostbackData(event *linebot.Event) error {
 	return err
 }
 
-func (bh *BotHandlerImpl) updateLiquidationStartDate(group *store.Group, date string) error {
+func (bh *BotHandlerImpl) updateLiquidationStartDate(event *linebot.Event, group *store.Group) error {
+	date := event.Postback.Params.Date
 	liquidation, err := bh.store.GetLiquidation(group.ID)
 	if err != nil {
 		return fmt.Errorf("%s postback data received but liquidation is not initialized: %w", POSTBACK_LIQUIDATION_START_DATE, err)
@@ -58,10 +63,18 @@ func (bh *BotHandlerImpl) updateLiquidationStartDate(group *store.Group, date st
 		return fmt.Errorf("failed to set startDate to liqdatioin (groupId=%s, startDate=%v): %w", group.ID, startDate, err)
 	}
 
+	// Notify date result
+	message := linebot.NewTextMessage("開始日: " + date)
+	err = bh.bot.ReplyMessage(event.ReplyToken, message)
+	if err != nil {
+		return fmt.Errorf("failed to reply message: %w", err)
+	}
+
 	return nil
 }
 
-func (bh *BotHandlerImpl) updateLiquidationEndDate(group *store.Group, date string) error {
+func (bh *BotHandlerImpl) updateLiquidationEndDate(event *linebot.Event, group *store.Group) error {
+	date := event.Postback.Params.Date
 	liquidation, err := bh.store.GetLiquidation(group.ID)
 	if err != nil {
 		return fmt.Errorf("%s postback data received but liquidation is not initialized: %w", POSTBACK_LIQUIDATION_START_DATE, err)
@@ -83,6 +96,13 @@ func (bh *BotHandlerImpl) updateLiquidationEndDate(group *store.Group, date stri
 	err = bh.store.UpdateLiquidation(group.ID, liquidation)
 	if err != nil {
 		return fmt.Errorf("failed to set endDate to liquidation (groupId=%s, endDate=%v): %w", group.ID, endDate, err)
+	}
+
+	// Notify date result
+	message := linebot.NewTextMessage("終了日: " + date)
+	err = bh.bot.ReplyMessage(event.ReplyToken, message)
+	if err != nil {
+		return fmt.Errorf("failed to reply message: %w", err)
 	}
 
 	return nil

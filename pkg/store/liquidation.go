@@ -43,7 +43,7 @@ func (s *StoreImpl) GetLiquidation(groupID string) (*Liquidation, error) {
 	return liquidation, nil
 }
 
-// CreateLiquidation update a liquidation.
+// CreateLiquidation create a liquidation.
 func (s *StoreImpl) CreateLiquidation(groupID string, liquidation Liquidation) error {
 	now := timeutil.Now()
 	liquidation.CreatedAt = now
@@ -78,7 +78,7 @@ func (s *StoreImpl) saveLiquidation(groupID string, liquidation *Liquidation) er
 	return err
 }
 
-// DeleteLiquidation delete a group.
+// DeleteLiquidation delete a liquidation.
 func (s *StoreImpl) DeleteLiquidation(groupID string) error {
 	ctx := context.Background()
 

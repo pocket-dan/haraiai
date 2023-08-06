@@ -34,5 +34,8 @@ tmp
 *.tfstate
 *.tfstate.backup
 
-# other
-doc
+doc/*
+!doc/liquidation-flow.png
+!doc/puml/
+doc/puml/*
+!doc/puml/liquidation.puml

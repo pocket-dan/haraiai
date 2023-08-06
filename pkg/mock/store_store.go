@@ -7,7 +7,6 @@ package mock
 import (
 	reflect "reflect"
 
-	firestore "cloud.google.com/go/firestore"
 	gomock "github.com/golang/mock/gomock"
 	store "github.com/raahii/haraiai/pkg/store"
 )
@@ -33,6 +32,21 @@ func NewMockStore(ctrl *gomock.Controller) *MockStore {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
+}
+
+// BuildPayAmountMapBetweenCreatedAt mocks base method.
+func (m *MockStore) BuildPayAmountMapBetweenCreatedAt(arg0 string, arg1 *store.DateRange) (map[string]int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BuildPayAmountMapBetweenCreatedAt", arg0, arg1)
+	ret0, _ := ret[0].(map[string]int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BuildPayAmountMapBetweenCreatedAt indicates an expected call of BuildPayAmountMapBetweenCreatedAt.
+func (mr *MockStoreMockRecorder) BuildPayAmountMapBetweenCreatedAt(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildPayAmountMapBetweenCreatedAt", reflect.TypeOf((*MockStore)(nil).BuildPayAmountMapBetweenCreatedAt), arg0, arg1)
 }
 
 // CreateLiquidation mocks base method.
@@ -133,21 +147,6 @@ func (m *MockStore) SaveGroup(arg0 *store.Group) error {
 func (mr *MockStoreMockRecorder) SaveGroup(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveGroup", reflect.TypeOf((*MockStore)(nil).SaveGroup), arg0)
-}
-
-// SelectPaymentsBetweenCreatedAt mocks base method.
-func (m *MockStore) SelectPaymentsBetweenCreatedAt(arg0 string, arg1 store.DateRange) (*firestore.DocumentIterator, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectPaymentsBetweenCreatedAt", arg0, arg1)
-	ret0, _ := ret[0].(*firestore.DocumentIterator)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SelectPaymentsBetweenCreatedAt indicates an expected call of SelectPaymentsBetweenCreatedAt.
-func (mr *MockStoreMockRecorder) SelectPaymentsBetweenCreatedAt(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectPaymentsBetweenCreatedAt", reflect.TypeOf((*MockStore)(nil).SelectPaymentsBetweenCreatedAt), arg0, arg1)
 }
 
 // UpdateLiquidation mocks base method.

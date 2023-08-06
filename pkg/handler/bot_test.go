@@ -49,7 +49,7 @@ func TestHandleWebhook_200_NotTextMessage(t *testing.T) {
 		// linebot.EventTypeLeave,
 		linebot.EventTypeMemberJoined,
 		linebot.EventTypeMemberLeft,
-		linebot.EventTypePostback,
+		// linebot.EventTypePostback,
 		linebot.EventTypeBeacon,
 		linebot.EventTypeAccountLink,
 		linebot.EventTypeThings,
@@ -88,17 +88,5 @@ func TestHandleWebhook_200_NotTextMessage(t *testing.T) {
 
 				assert.Equal(t, http.StatusOK, recorder.Code)
 			})
-	}
-}
-
-func newTestEvent(eventType linebot.EventType) *linebot.Event {
-	return &linebot.Event{
-		Type:           eventType,
-		WebhookEventID: "event ID",
-		Source: &linebot.EventSource{
-			Type:    linebot.EventSourceTypeGroup,
-			UserID:  "user A",
-			GroupID: "group A",
-		},
 	}
 }

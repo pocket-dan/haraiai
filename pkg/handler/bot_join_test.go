@@ -79,18 +79,3 @@ func TestHandleBotJoin_unsupportedSourceType(t *testing.T) {
 			})
 	}
 }
-
-func newTestJoinEvent(
-	replyToken string,
-	eventSourceType linebot.EventSourceType,
-	groupID string,
-) *linebot.Event {
-	return &linebot.Event{
-		Type:       linebot.EventTypeJoin,
-		ReplyToken: replyToken,
-		Source: &linebot.EventSource{
-			Type:    eventSourceType,
-			GroupID: groupID,
-		},
-	}
-}

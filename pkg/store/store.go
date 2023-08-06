@@ -22,7 +22,7 @@ type Store interface {
 	DeleteGroup(string) error
 	// Payment
 	CreatePayment(string, *Payment) error
-	SelectPaymentsBetweenCreatedAt(string, DateRange) (*firestore.DocumentIterator, error)
+	BuildPayAmountMapBetweenCreatedAt(string, *DateRange) (map[string]int64, error)
 	// Liquidation
 	GetLiquidation(string) (*Liquidation, error)
 	CreateLiquidation(string, Liquidation) error
