@@ -20,6 +20,6 @@ export default defineConfig({
       },
     }),
     sitemap(),
-    compress(),
+    // compress(),
   ],
 });

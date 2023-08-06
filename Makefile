@@ -32,8 +32,11 @@ develop-fe:
 
 before-deploy:
 	# copy static resources
-	rm -rf func/bot/images || true
-	cp -r pkg/images func/bot/
+	rm -rf $(FUNC_BOT)/images $(FUNC_BOT)/flexmessage || true
+	cp -r pkg/images $(FUNC_BOT)
+	# flex message templates
+	mkdir -p $(FUNC_BOT)/flexmessage
+	cp -r pkg/flexmessage/templates $(FUNC_BOT)/flexmessage/
 
 deploy: build before-deploy
 	cd deploy && terraform apply

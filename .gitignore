@@ -26,6 +26,7 @@ vendor
 
 # functions
 func/bot/images
+func/bot/flexmessage
 
 # terraform
 tmp
