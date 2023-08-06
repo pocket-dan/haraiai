@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -382,8 +381,6 @@ func (bh *BotHandlerImpl) replyLiquidationAmount(
 			return fmt.Errorf("failed to calculate liquidation amount in the period: %w", err)
 		}
 	}
-
-	log.Println(liquidationAmount, whoPayALot, whoPayLess)
 
 	if liquidationAmount == 0 {
 		bh.store.DeleteLiquidation(group.ID)
