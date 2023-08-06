@@ -33,16 +33,3 @@ func TestHandleBotFollow_success(t *testing.T) {
 
 	assert.Nil(t, err)
 }
-
-func newTestFollowEvent(
-	replyToken string,
-) *linebot.Event {
-	return &linebot.Event{
-		Type:       linebot.EventTypeFollow,
-		ReplyToken: replyToken,
-		Source: &linebot.EventSource{
-			Type:   linebot.EventSourceTypeUser,
-			UserID: "dummy ID",
-		},
-	}
-}

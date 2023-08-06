@@ -34,6 +34,35 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// BuildPayAmountMapBetweenCreatedAt mocks base method.
+func (m *MockStore) BuildPayAmountMapBetweenCreatedAt(arg0 string, arg1 *store.DateRange) (map[string]int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BuildPayAmountMapBetweenCreatedAt", arg0, arg1)
+	ret0, _ := ret[0].(map[string]int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BuildPayAmountMapBetweenCreatedAt indicates an expected call of BuildPayAmountMapBetweenCreatedAt.
+func (mr *MockStoreMockRecorder) BuildPayAmountMapBetweenCreatedAt(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildPayAmountMapBetweenCreatedAt", reflect.TypeOf((*MockStore)(nil).BuildPayAmountMapBetweenCreatedAt), arg0, arg1)
+}
+
+// CreateLiquidation mocks base method.
+func (m *MockStore) CreateLiquidation(arg0 string, arg1 store.Liquidation) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateLiquidation", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateLiquidation indicates an expected call of CreateLiquidation.
+func (mr *MockStoreMockRecorder) CreateLiquidation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLiquidation", reflect.TypeOf((*MockStore)(nil).CreateLiquidation), arg0, arg1)
+}
+
 // CreatePayment mocks base method.
 func (m *MockStore) CreatePayment(arg0 string, arg1 *store.Payment) error {
 	m.ctrl.T.Helper()
@@ -62,6 +91,20 @@ func (mr *MockStoreMockRecorder) DeleteGroup(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteGroup", reflect.TypeOf((*MockStore)(nil).DeleteGroup), arg0)
 }
 
+// DeleteLiquidation mocks base method.
+func (m *MockStore) DeleteLiquidation(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteLiquidation", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteLiquidation indicates an expected call of DeleteLiquidation.
+func (mr *MockStoreMockRecorder) DeleteLiquidation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLiquidation", reflect.TypeOf((*MockStore)(nil).DeleteLiquidation), arg0)
+}
+
 // GetGroup mocks base method.
 func (m *MockStore) GetGroup(arg0 string) (*store.Group, error) {
 	m.ctrl.T.Helper()
@@ -77,6 +120,21 @@ func (mr *MockStoreMockRecorder) GetGroup(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroup", reflect.TypeOf((*MockStore)(nil).GetGroup), arg0)
 }
 
+// GetLiquidation mocks base method.
+func (m *MockStore) GetLiquidation(arg0 string) (*store.Liquidation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLiquidation", arg0)
+	ret0, _ := ret[0].(*store.Liquidation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLiquidation indicates an expected call of GetLiquidation.
+func (mr *MockStoreMockRecorder) GetLiquidation(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLiquidation", reflect.TypeOf((*MockStore)(nil).GetLiquidation), arg0)
+}
+
 // SaveGroup mocks base method.
 func (m *MockStore) SaveGroup(arg0 *store.Group) error {
 	m.ctrl.T.Helper()
@@ -89,4 +147,18 @@ func (m *MockStore) SaveGroup(arg0 *store.Group) error {
 func (mr *MockStoreMockRecorder) SaveGroup(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveGroup", reflect.TypeOf((*MockStore)(nil).SaveGroup), arg0)
+}
+
+// UpdateLiquidation mocks base method.
+func (m *MockStore) UpdateLiquidation(arg0 string, arg1 *store.Liquidation) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateLiquidation", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateLiquidation indicates an expected call of UpdateLiquidation.
+func (mr *MockStoreMockRecorder) UpdateLiquidation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLiquidation", reflect.TypeOf((*MockStore)(nil).UpdateLiquidation), arg0, arg1)
 }

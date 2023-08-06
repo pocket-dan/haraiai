@@ -88,6 +88,11 @@ func (bh *BotHandlerImpl) HandleWebhook(w http.ResponseWriter, req *http.Request
 			case *linebot.TextMessage:
 				err = bh.handleTextMessage(event, message)
 			}
+		// Postback Action
+		case linebot.EventTypePostback:
+			err = bh.handlePostbackData(event)
+		default:
+			logger.Debugf("%s event type is not supported, skip.", event.Type)
 		}
 
 		if err != nil {

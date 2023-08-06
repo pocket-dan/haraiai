@@ -64,16 +64,3 @@ func TestHandleBotLeave_unsupportedSourceType(t *testing.T) {
 			})
 	}
 }
-
-func newTestLeaveEvent(
-	eventSourceType linebot.EventSourceType,
-	groupID string,
-) *linebot.Event {
-	return &linebot.Event{
-		Type: linebot.EventTypeLeave,
-		Source: &linebot.EventSource{
-			Type:    eventSourceType,
-			GroupID: groupID,
-		},
-	}
-}

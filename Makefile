@@ -19,7 +19,7 @@ generate:
 	cd pkg && rm -rf mock && go generate ./...
 
 test: generate
-	cd pkg && PHASE=test gotest -v ./...
+	cd pkg && PHASE=test gotest -v ./... $(ARGS)
 
 ci-test: prepare build
 	cd pkg && PHASE=test go test -json ./... | tee /tmp/gotest.log | gotestfmt
