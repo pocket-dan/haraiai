@@ -1,7 +1,7 @@
 ---
 slug: "name-change-feature"
 title: "名前を変更できるようになりました"
-desc: "haraiai をご利用のグループで登録した名前が変更できるようになりました。"
+desc: "haraiai をご利用のLINEグループで登録した名前が変更できるようになりました。"
 pubDate: "2023/01/29"
 ---
 
