@@ -12,6 +12,10 @@ const (
 	LIQUIDATION_COLLECTION_ID = "liquidations"
 )
 
+var (
+	MAX_LIQUIDATION_PERIOD = 6 * timeutil.DURATION_MONTH
+)
+
 type DateRange struct {
 	Start time.Time
 	End   time.Time
@@ -33,7 +37,7 @@ func (l *Liquidation) IsValidLiquidationPeriod() bool {
 	start := l.Period.Start
 	end := l.Period.End
 
-	if end.Before(start) || end.Sub(start) >= timeutil.DURATION_MONTH {
+	if end.Before(start) || end.Sub(start) >= MAX_LIQUIDATION_PERIOD {
 		return false
 	}
 
