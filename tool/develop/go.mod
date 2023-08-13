@@ -1,6 +1,6 @@
 module github.com/raahii/haraiai/tool/develop
 
-go 1.18
+go 1.20
 
 replace github.com/raahii/haraiai/pkg => ../../pkg
 
