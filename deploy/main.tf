@@ -44,7 +44,7 @@ resource "google_storage_bucket_object" "bot" {
 resource "google_cloudfunctions_function" "bot_webhook" {
   name        = "BotWebhookHandler"
   description = "Handle LINE Bot webhook"
-  runtime     = "go119"
+  runtime     = "go120"
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.bot.name

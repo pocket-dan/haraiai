@@ -1,6 +1,6 @@
 module github.com/raahii/haraiai/pkg
 
-go 1.19
+go 1.20
 
 replace github.com/raahii/haraiai/pkg => ../../pkg
 
