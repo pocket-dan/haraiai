@@ -17,16 +17,16 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
 
 # Go workspace file
 go.work
 
-vendor
+# static files for deploy
+func/bot/messaging
 
-# functions
-func/bot/images
-func/bot/flexmessage
+# mock files for test
+pkg/mock
 
 # terraform
 tmp
@@ -35,6 +35,7 @@ tmp
 *.tfstate
 *.tfstate.backup
 
+# documents
 doc/*
 !doc/liquidation-flow.png
 !doc/puml/

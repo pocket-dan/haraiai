@@ -6,7 +6,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
-	"github.com/raahii/haraiai/pkg/mock"
 	"github.com/raahii/haraiai/pkg/store"
 	"github.com/raahii/haraiai/pkg/timeutil"
 	"github.com/stretchr/testify/assert"
@@ -48,10 +47,7 @@ func TestHandlePostbackData_saveLiquidationDate(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			c := mock.NewMockBotConfig(ctrl)
-			b := mock.NewMockBotClient(ctrl)
-			s := mock.NewMockStore(ctrl)
-			target := BotHandlerImpl{config: c, bot: b, store: s}
+			_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 			s.
 				EXPECT().
@@ -99,10 +95,7 @@ func TestHandlePostbackData_IgnoreEventsNotInGroup(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	_, _, _, s, target := initializeMocksAndHandler(ctrl)
 
 	// These events are not from group
 	eventSourceTypes := []linebot.EventSourceType{

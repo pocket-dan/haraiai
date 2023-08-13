@@ -9,7 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
-	"github.com/raahii/haraiai/pkg/flexmessage"
+	"github.com/raahii/haraiai/pkg/messaging/flexmessage"
 	"github.com/raahii/haraiai/pkg/store"
 	"github.com/raahii/haraiai/pkg/timeutil"
 	"github.com/samber/lo"
@@ -305,7 +305,7 @@ func (bh *BotHandlerImpl) replyLiquidationStart(
 		SelectPartialModeText: LIQUIDATION_PARTIAL_MESSAGE,
 	}
 
-	replyMessage, err := flexmessage.BuildLiquidationModeSelectionMessage(params)
+	replyMessage, err := bh.fs.BuildLiquidationModeSelectionMessage(params)
 	if err != nil {
 		return err
 	}
@@ -349,7 +349,7 @@ func (bh *BotHandlerImpl) replyPartialLiquidationStart(
 		},
 	}
 
-	flexMessage, err := flexmessage.BuildLiquidationPeriodInputMessage(params)
+	flexMessage, err := bh.fs.BuildLiquidationPeriodInputMessage(params)
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func (bh *BotHandlerImpl) replyLiquidationAmount(
 	params := flexmessage.LiquidationConfirmationParams{
 		OkMessageText: LIQUIDATION_DONE_MESSAGE,
 	}
-	confirmationMessage, err := flexmessage.BuildLiquidationConfirmationMessage(params)
+	confirmationMessage, err := bh.fs.BuildLiquidationConfirmationMessage(params)
 	if err != nil {
 		return err
 	}

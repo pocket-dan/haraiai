@@ -14,7 +14,7 @@ type TemplateVars struct {
 }
 
 func TestTemplating(t *testing.T) {
-	tmpl, err := template.ParseFiles("templates/test/sample.json.tmpl")
+	tmpl, err := template.ParseFiles("../static/flexmessages/test/sample.json.tmpl")
 	assert.Nil(t, err)
 
 	v := TemplateVars{"Tokihide Nashiichiro", 14}

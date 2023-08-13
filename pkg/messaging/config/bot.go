@@ -1,4 +1,3 @@
-//go:generate mockgen -source=$GOFILE -destination=../mock/config_$GOFILE -package=mock
 package config
 
 import (
@@ -8,25 +7,16 @@ import (
 )
 
 const (
-	RICH_MENU_IMAGE_PATH = "images/richmenu.png"
+	RICH_MENU_IMAGE_PATH = "messaging/static/images/richmenu.png"
+	FLEX_TEMPLATE_DIR    = "messaging/static/flexmessages"
 )
-
-type BotConfig interface {
-	// FE URL
-	GetAboutPageURL() string
-	GetHelpPageURL() string
-	GetInquiryPageURL() string
-
-	// richmenu image path
-	GetRichMenuImagePath() string
-}
 
 type BotConfigImpl struct {
 	frontBaseURL    string
 	packageBasePath string
 }
 
-func NewBotConfig() (*BotConfigImpl, error) {
+func ProvideBotConfig() (BotConfig, error) {
 	frontBaseURL := os.Getenv("FE_BASE_URL")
 	if frontBaseURL == "" {
 		return nil, errors.New("$FE_BASE_URL required.")
@@ -57,4 +47,8 @@ func (c *BotConfigImpl) GetInquiryPageURL() string {
 
 func (c *BotConfigImpl) GetRichMenuImagePath() string {
 	return filepath.Join(c.packageBasePath, RICH_MENU_IMAGE_PATH)
+}
+
+func (c *BotConfigImpl) GetFlexTemplateDir() string {
+	return filepath.Join(c.packageBasePath, FLEX_TEMPLATE_DIR)
 }

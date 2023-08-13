@@ -8,7 +8,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
-	"github.com/raahii/haraiai/pkg/mock"
 	"github.com/raahii/haraiai/pkg/store"
 	"github.com/raahii/haraiai/pkg/timeutil"
 	"github.com/stretchr/testify/assert"
@@ -18,10 +17,7 @@ func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 	group := newTestGroup(
 		GROUP_ID,
@@ -69,10 +65,7 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 	group := newTestGroup(
 		GROUP_ID,
@@ -122,10 +115,7 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 	group := newTestGroup(
 		GROUP_ID,
@@ -164,10 +154,7 @@ func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 	group := newTestGroup(
 		GROUP_ID,
@@ -250,10 +237,7 @@ func TestHandleTextMessage_startLiquidation_success(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			c := mock.NewMockBotConfig(ctrl)
-			b := mock.NewMockBotClient(ctrl)
-			s := mock.NewMockStore(ctrl)
-			target := BotHandlerImpl{config: c, bot: b, store: s}
+			_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 			// Mock and check GetGroup method call.
 			group := newTestGroup(
@@ -355,10 +339,7 @@ func TestHandleTextMessage_calculateLiquidationAmount_whole(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			c := mock.NewMockBotConfig(ctrl)
-			b := mock.NewMockBotClient(ctrl)
-			s := mock.NewMockStore(ctrl)
-			target := BotHandlerImpl{config: c, bot: b, store: s}
+			_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 			// Mock and check GetGroup method call.
 			s.
@@ -470,10 +451,7 @@ func TestHandleTextMessage_calculateLiquidationAmount_partial(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			c := mock.NewMockBotConfig(ctrl)
-			b := mock.NewMockBotClient(ctrl)
-			s := mock.NewMockStore(ctrl)
-			target := BotHandlerImpl{config: c, bot: b, store: s}
+			_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 			// Mock and check GetGroup method call.
 			s.
@@ -538,10 +516,7 @@ func TestHandleTextMessage_startPartialLiquidationSetting(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 	// Mock and check GetGroup method call.
 	group := newTestGroup(
@@ -632,10 +607,7 @@ func TestHandleTextMessage_calculateLiquidationAmount_noDifference(t *testing.T)
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			c := mock.NewMockBotConfig(ctrl)
-			b := mock.NewMockBotClient(ctrl)
-			s := mock.NewMockStore(ctrl)
-			target := BotHandlerImpl{config: c, bot: b, store: s}
+			_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 			// Mock and check GetGroup method call.
 			s.
@@ -753,10 +725,7 @@ func TestHandleTextMessage_completeLiquidation(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			c := mock.NewMockBotConfig(ctrl)
-			b := mock.NewMockBotClient(ctrl)
-			s := mock.NewMockStore(ctrl)
-			target := BotHandlerImpl{config: c, bot: b, store: s}
+			_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 			s.
 				EXPECT().
@@ -862,10 +831,7 @@ func TestHandleTextMessage_completeLiquidation_invalidLiquidation(t *testing.T) 
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			c := mock.NewMockBotConfig(ctrl)
-			b := mock.NewMockBotClient(ctrl)
-			s := mock.NewMockStore(ctrl)
-			target := BotHandlerImpl{config: c, bot: b, store: s}
+			_, _, _, s, target := initializeMocksAndHandler(ctrl)
 
 			s.
 				EXPECT().
@@ -902,10 +868,7 @@ func TestHandleHelpMessage_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	c, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 	// Mock config
 	helpPageURL := "https://test.com/help"
@@ -951,10 +914,7 @@ func TestHandleMessageForNameChangeGuide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 	// Mock and check GetGroup method call.
 	s.
@@ -1003,10 +963,7 @@ func TestHandleNameChange(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			c := mock.NewMockBotConfig(ctrl)
-			b := mock.NewMockBotClient(ctrl)
-			s := mock.NewMockStore(ctrl)
-			target := BotHandlerImpl{config: c, bot: b, store: s}
+			_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
 			// Mock and check GetGroup method call.
 			s.
@@ -1078,10 +1035,7 @@ func TestHandleTextMessage_unsupportedSourceType(t *testing.T) {
 				ctrl := gomock.NewController(t)
 				defer ctrl.Finish()
 
-				c := mock.NewMockBotConfig(ctrl)
-				b := mock.NewMockBotClient(ctrl)
-				s := mock.NewMockStore(ctrl)
-				target := BotHandlerImpl{config: c, bot: b, store: s}
+				_, b, _, _, target := initializeMocksAndHandler(ctrl)
 
 				b.
 					EXPECT().
@@ -1096,8 +1050,3 @@ func TestHandleTextMessage_unsupportedSourceType(t *testing.T) {
 			})
 	}
 }
-
-// // mock current time
-// fixedTime := time.Date(2023, time.August, 1, 10, 10, 10, 0, timeutil.JST)
-// restore := flextime.Set(fixedTime)
-// defer restore()

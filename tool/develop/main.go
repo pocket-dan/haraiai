@@ -4,13 +4,13 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/raahii/haraiai/pkg/handler"
+	"github.com/raahii/haraiai/pkg/wire"
 	"github.com/rs/cors"
 )
 
 // Run for local development.
 func main() {
-	bot, err := handler.NewBotHandler()
+	bot, err := wire.BuildBotHandler()
 	if err != nil {
 		panic(err)
 	}
