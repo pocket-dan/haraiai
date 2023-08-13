@@ -1,4 +1,3 @@
-//go:generate mockgen -source=$GOFILE -destination=../mock/client_$GOFILE -package=mock
 package client
 
 import (
@@ -10,23 +9,11 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-// This package is just a wrapper for line-bot-sdk-go client
-// to enable mocking/stubbing behavior.
-
-type BotClient interface {
-	ParseRequest(*http.Request) ([]*linebot.Event, error)
-	ReplyTextMessage(string, ...string) error
-	ReplyMessage(string, ...linebot.SendingMessage) error
-	CreateRichMenu(linebot.RichMenu) (string, error)
-	UploadRichMenuImage(string, string) error
-	SetDefaultRichMenu(string) error
-}
-
 type BotClientImpl struct {
 	client *linebot.Client
 }
 
-func NewBotClient() (*BotClientImpl, error) {
+func ProvideBotClient() (BotClient, error) {
 	channelSecret := os.Getenv("CHANNEL_SECRET")
 	if channelSecret == "" {
 		return nil, errors.New("$CHANNEL_SECRET required.")
@@ -43,9 +30,7 @@ func NewBotClient() (*BotClientImpl, error) {
 		return nil, fmt.Errorf("failed to initialize LINE Bot: %w", err)
 	}
 
-	return &BotClientImpl{
-		client: b,
-	}, nil
+	return &BotClientImpl{client: b}, nil
 }
 
 func (bc *BotClientImpl) ParseRequest(r *http.Request) ([]*linebot.Event, error) {

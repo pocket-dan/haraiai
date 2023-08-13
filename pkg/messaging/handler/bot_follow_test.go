@@ -5,7 +5,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
-	"github.com/raahii/haraiai/pkg/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,10 +12,7 @@ func TestHandleBotFollow_success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	c := mock.NewMockBotConfig(ctrl)
-	b := mock.NewMockBotClient(ctrl)
-	s := mock.NewMockStore(ctrl)
-	target := BotHandlerImpl{config: c, bot: b, store: s}
+	_, b, _, _, target := initializeMocksAndHandler(ctrl)
 
 	replyToken := "replyToken"
 

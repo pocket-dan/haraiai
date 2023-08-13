@@ -9,14 +9,18 @@ build: clean prepare generate
 
 clean:
 	rm -rf $(FUNC_BOT)/vendor
+	rm -rf $(FUNC_BOT)/messaging
+	rm -rf pkg/mock
 
 prepare:
-	cd pkg && \
-		go install github.com/golang/mock/mockgen@v1.6.0 && \
-		go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
+	cd pkg \
+		&& go install github.com/golang/mock/mockgen@v1.6.0 \
+		&& go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest \
+		&& go install github.com/google/wire/cmd/wire@latest
 
 generate:
-	cd pkg && rm -rf mock && go generate ./...
+	cd pkg \
+		&& GOFLAGS=-mod=mod go generate ./...
 
 test: generate
 	cd pkg && PHASE=test gotest -v ./... $(ARGS)
@@ -33,10 +37,7 @@ develop-fe:
 before-deploy:
 	# copy static resources
 	rm -rf $(FUNC_BOT)/images $(FUNC_BOT)/flexmessage || true
-	cp -r pkg/images $(FUNC_BOT)
-	# flex message templates
-	mkdir -p $(FUNC_BOT)/flexmessage
-	cp -r pkg/flexmessage/templates $(FUNC_BOT)/flexmessage/
+	mkdir -p $(FUNC_BOT)/messaging/static && cp -r pkg/messaging/static $(FUNC_BOT)/messaging/
 
 deploy: build before-deploy
 	cd deploy && terraform apply

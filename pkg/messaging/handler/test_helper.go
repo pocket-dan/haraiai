@@ -3,8 +3,10 @@ package handler
 import (
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 
+	"github.com/raahii/haraiai/pkg/mock"
 	"github.com/raahii/haraiai/pkg/store"
 )
 
@@ -32,6 +34,42 @@ var (
 )
 
 // helper functions to build test linebot.Event
+
+func initializeMocksAndHandler(ctrl *gomock.Controller) (
+	*mock.MockBotConfig,
+	*mock.MockBotClient,
+	*mock.MockFlexMessageBuilder,
+	*mock.MockStore,
+	*BotHandlerImpl,
+) {
+	c := mock.NewMockBotConfig(ctrl)
+	b := mock.NewMockBotClient(ctrl)
+	f := mock.NewMockFlexMessageBuilder(ctrl)
+	s := mock.NewMockStore(ctrl)
+
+	h := &BotHandlerImpl{config: c, bot: b, fs: f, store: s}
+
+	// mock calls for FlexMessageBuilder by default
+	f.
+		EXPECT().
+		BuildLiquidationModeSelectionMessage(gomock.Any()).
+		Return(&linebot.FlexMessage{}, nil).
+		MaxTimes(1)
+
+	f.
+		EXPECT().
+		BuildLiquidationPeriodInputMessage(gomock.Any()).
+		Return(&linebot.FlexMessage{}, nil).
+		MaxTimes(1)
+
+	f.
+		EXPECT().
+		BuildLiquidationConfirmationMessage(gomock.Any()).
+		Return(&linebot.FlexMessage{}, nil).
+		MaxTimes(1)
+
+	return c, b, f, s, h
+}
 
 func newTestEvent(eventType linebot.EventType) *linebot.Event {
 	return &linebot.Event{

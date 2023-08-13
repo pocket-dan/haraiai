@@ -1,4 +1,3 @@
-//go:generate mockgen -source=$GOFILE -destination=../mock/handler_$GOFILE -package=mock
 package handler
 
 import (
@@ -7,39 +6,28 @@ import (
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/raahii/haraiai/pkg/client"
-	"github.com/raahii/haraiai/pkg/config"
-	"github.com/raahii/haraiai/pkg/log"
+	"github.com/raahii/haraiai/pkg/messaging/config"
+	"github.com/raahii/haraiai/pkg/messaging/flexmessage"
+	"github.com/raahii/haraiai/pkg/messaging/log"
 	"github.com/raahii/haraiai/pkg/store"
 )
-
-type BotHandler interface {
-	HandleWebhook(http.ResponseWriter, *http.Request)
-}
 
 type BotHandlerImpl struct {
 	config config.BotConfig
 	bot    client.BotClient
+	fs     flexmessage.FlexMessageBuilder
 	store  store.Store
 }
 
-func NewBotHandler() (*BotHandlerImpl, error) {
-	c, err := config.NewBotConfig()
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize bot config: %w", err)
-	}
+func ProvideBotHandler(
+	c config.BotConfig,
+	b client.BotClient,
+	f flexmessage.FlexMessageBuilder,
+	s store.Store,
+) (BotHandler, error) {
+	handler := &BotHandlerImpl{config: c, bot: b, fs: f, store: s}
 
-	bc, err := client.NewBotClient()
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize bot client: %w", err)
-	}
-
-	s, err := store.New()
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize store: %w", err)
-	}
-
-	handler := &BotHandlerImpl{config: c, bot: bc, store: s}
-	err = handler.createRichMenu()
+	err := handler.createRichMenu()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create rich menu: %w", err)
 	}
