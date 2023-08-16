@@ -40,7 +40,7 @@ const (
 )
 
 var (
-	PAYMENT_TEXT_TRIM_CHARS = []string{",", "\\", "円", "￥", "¥", " "}
+	PAYMENT_TEXT_REMOVE_STRS = []string{",", "\\", "円", "￥", "¥", " "}
 
 	MESSAGES_FOR_NAME_CHANGE_GUIDE = []string{
 		"名前変更",
@@ -637,8 +637,8 @@ func parsePaymentTitle(text string) string {
 }
 
 func parsePayAmount(text string) (int, error) {
-	for _, c := range PAYMENT_TEXT_TRIM_CHARS {
-		text = strings.ReplaceAll(text, string(c), "")
+	for _, s := range PAYMENT_TEXT_REMOVE_STRS {
+		text = strings.ReplaceAll(text, s, "")
 	}
 
 	value, err := strconv.Atoi(text)
