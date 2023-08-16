@@ -151,73 +151,88 @@ func TestHandleTextMessage_totalUp_success(t *testing.T) {
 }
 
 func TestHandleTextMessage_addNewPayment_success(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	cases := []struct {
+		inputText string
+	}{
+		{inputText: "スタバ\n1000"},
+		{inputText: "スタバ\n1000円"},
+		{inputText: "スタバ\n1,000"},
+		{inputText: "スタバ\n1,000円"},
+		{inputText: " スタバ\n1,000円 \n"},
+	}
 
-	_, b, _, s, target := initializeMocksAndHandler(ctrl)
+	for _, tt := range cases {
+		t.Run(tt.inputText, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-	group := newTestGroup(
-		GROUP_ID,
-		store.GROUP_STARTED,
-		[]*store.User{newTaroUser(1000), newHanakoUser(5000)},
-	)
+			_, b, _, s, target := initializeMocksAndHandler(ctrl)
 
-	s.
-		EXPECT().
-		GetGroup(group.ID).
-		Return(group, nil).
-		Times(1)
+			group := newTestGroup(
+				GROUP_ID,
+				store.GROUP_STARTED,
+				[]*store.User{newTaroUser(1000), newHanakoUser(5000)},
+			)
 
-	s.
-		EXPECT().
-		CreatePayment(group.ID, gomock.Any()).
-		Do(func(_ string, payment *store.Payment) {
-			assert.Equal(t, "スタバ", payment.Name)
-			assert.Equal(t, int64(1000), payment.Amount)
-			assert.Equal(t, store.PAYMENT_TYPE_DEFAULT, payment.Type)
-			assert.Equal(t, TARO_ID, payment.PayerID)
-		}).
-		Times(1)
+			s.
+				EXPECT().
+				GetGroup(group.ID).
+				Return(group, nil).
+				Times(1)
 
-	s.
-		EXPECT().
-		SaveGroup(gomock.Any()).
-		Do(func(newGroup *store.Group) {
-			assert.Equal(t, group.ID, newGroup.ID)
-			assert.Len(t, newGroup.Members, 2)
-			assert.Equal(t, TIME_GROUP_CREATED, group.CreatedAt)
+			s.
+				EXPECT().
+				CreatePayment(group.ID, gomock.Any()).
+				Do(func(_ string, payment *store.Payment) {
+					assert.Equal(t, "スタバ", payment.Name)
+					assert.Equal(t, int64(1000), payment.Amount)
+					assert.Equal(t, store.PAYMENT_TYPE_DEFAULT, payment.Type)
+					assert.Equal(t, TARO_ID, payment.PayerID)
+				}).
+				Times(1)
 
-			expectedTaro := newTaroUser(2000)
-			actual := newGroup.Members[TARO_ID]
-			assert.Equal(t, expectedTaro.ID, actual.ID)
-			assert.Equal(t, expectedTaro.Name, actual.Name)
-			assert.Equal(t, expectedTaro.PayAmount, actual.PayAmount)
-			assert.Equal(t, expectedTaro.InitialPayAmount, actual.InitialPayAmount)
+			s.
+				EXPECT().
+				SaveGroup(gomock.Any()).
+				Do(func(newGroup *store.Group) {
+					assert.Equal(t, group.ID, newGroup.ID)
+					assert.Len(t, newGroup.Members, 2)
+					assert.Equal(t, TIME_GROUP_CREATED, group.CreatedAt)
 
-			assert.Equal(t, group.Members[HANAKO_ID], newGroup.Members[HANAKO_ID])
-		}).
-		Times(1)
+					expectedTaro := newTaroUser(2000)
+					actual := newGroup.Members[TARO_ID]
+					assert.Equal(t, expectedTaro.ID, actual.ID)
+					assert.Equal(t, expectedTaro.Name, actual.Name)
+					assert.Equal(t, expectedTaro.PayAmount, actual.PayAmount)
+					assert.Equal(t, expectedTaro.InitialPayAmount, actual.InitialPayAmount)
 
-	expectedMessage := "👍"
-	b.
-		EXPECT().
-		ReplyMessage(REPLY_TOKEN, gomock.Any()).
-		Times(1).
-		Do(func(_ string, messages ...linebot.SendingMessage) {
-			assert.Len(t, messages, 1)
-			assert.Equal(t, linebot.NewTextMessage(expectedMessage), messages[0])
+					assert.Equal(t, group.Members[HANAKO_ID], newGroup.Members[HANAKO_ID])
+				}).
+				Times(1)
+
+			expectedMessage := "👍"
+			b.
+				EXPECT().
+				ReplyMessage(REPLY_TOKEN, gomock.Any()).
+				Times(1).
+				Do(func(_ string, messages ...linebot.SendingMessage) {
+					assert.Len(t, messages, 1)
+					assert.Equal(t, linebot.NewTextMessage(expectedMessage), messages[0])
+				})
+
+			event := newTestMessageEvent(
+				REPLY_TOKEN,
+				linebot.EventSourceTypeGroup,
+				group.ID,
+				TARO_ID,
+			)
+			message := newTextMessage(tt.inputText)
+			err := target.handleTextMessage(event, message)
+
+			assert.Nil(t, err)
 		})
+	}
 
-	event := newTestMessageEvent(
-		REPLY_TOKEN,
-		linebot.EventSourceTypeGroup,
-		group.ID,
-		TARO_ID,
-	)
-	message := newTextMessage("スタバ\n1000円")
-	err := target.handleTextMessage(event, message)
-
-	assert.Nil(t, err)
 }
 
 func TestHandleTextMessage_startLiquidation_success(t *testing.T) {

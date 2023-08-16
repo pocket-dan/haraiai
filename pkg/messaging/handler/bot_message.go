@@ -40,6 +40,8 @@ const (
 )
 
 var (
+	PAYMENT_TEXT_REMOVE_STRS = []string{",", "\\", "円", "￥", "¥", " "}
+
 	MESSAGES_FOR_NAME_CHANGE_GUIDE = []string{
 		"名前変更",
 		"ニックネーム変更",
@@ -635,9 +637,11 @@ func parsePaymentTitle(text string) string {
 }
 
 func parsePayAmount(text string) (int, error) {
-	trimmed := strings.Trim(text, " \n\\¥円")
+	for _, s := range PAYMENT_TEXT_REMOVE_STRS {
+		text = strings.ReplaceAll(text, s, "")
+	}
 
-	value, err := strconv.Atoi(trimmed)
+	value, err := strconv.Atoi(text)
 	if err != nil {
 		return 0, fmt.Errorf("Failed to parse '%s' as integer: %w", text, err)
 	}
