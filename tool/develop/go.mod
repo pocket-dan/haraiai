@@ -23,6 +23,7 @@ require (
 	github.com/oklog/ulid/v2 v2.1.0 // indirect
 	github.com/samber/lo v1.37.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
+	go.uber.org/mock v0.2.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect

@@ -3,7 +3,7 @@ package handler
 import (
 	"time"
 
-	"github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 
 	"github.com/raahii/haraiai/pkg/mock"
