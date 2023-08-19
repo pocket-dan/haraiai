@@ -7,12 +7,12 @@ replace github.com/raahii/haraiai/pkg => ../../pkg
 require (
 	cloud.google.com/go/firestore v1.6.1
 	github.com/Songmu/flextime v0.1.0
-	github.com/golang/mock v1.6.0
 	github.com/google/wire v0.5.0
 	github.com/line/line-bot-sdk-go/v7 v7.16.0
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/samber/lo v1.37.0
 	github.com/stretchr/testify v1.7.1
+	go.uber.org/mock v0.2.0
 	google.golang.org/api v0.81.0
 )
 
