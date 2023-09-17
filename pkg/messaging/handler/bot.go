@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
@@ -26,12 +25,6 @@ func ProvideBotHandler(
 	s store.Store,
 ) (BotHandler, error) {
 	handler := &BotHandlerImpl{config: c, bot: b, fs: f, store: s}
-
-	err := handler.createRichMenu()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create rich menu: %w", err)
-	}
-
 	return handler, nil
 }
 
