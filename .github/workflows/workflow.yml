@@ -150,36 +150,8 @@ jobs:
       - run: terraform apply -auto-approve -input=false
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
-  release-front-netlify:
-    name: release front (netlify)
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    if: github.ref == 'refs/heads/main'
-
-    needs:
-      - check-server
-      - check-front
-
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: front-dist-${{ github.sha }}
-          path: ./dist
-      - uses: nwtgck/actions-netlify@v2.0
-        with:
-          publish-dir: "./dist"
-          production-deploy: true
-          production-branch: main
-          enable-pull-request-comment: false
-          enable-commit-comment: false
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        timeout-minutes: 5
-
-  release-front-cloudflare:
-    name: release front (cloudlfare)
+  release-front:
+    name: release front
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
