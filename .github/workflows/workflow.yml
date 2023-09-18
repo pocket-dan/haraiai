@@ -166,14 +166,12 @@ jobs:
         with:
           name: front-dist-${{ github.sha }}
           path: ./dist
-      - uses: nwtgck/actions-netlify@v2.0
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@1
         with:
-          publish-dir: "./dist"
-          production-deploy: true
-          production-branch: main
-          enable-pull-request-comment: false
-          enable-commit-comment: false
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        timeout-minutes: 5
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          projectName: haraiai
+          directory: ./dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

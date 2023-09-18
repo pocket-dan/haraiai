@@ -60,7 +60,7 @@ resource "google_cloudfunctions_function" "bot_webhook" {
   environment_variables = {
     "PHASE"             = "production"
     "PROJECT_ID"        = "haraiai"
-    "FE_BASE_URL"       = "https://haraiai.netlify.app"
+    "FE_BASE_URL"       = "https://haraiai.com"
     "PACKAGE_BASE_PATH" = "/workspace/serverless_function_source_code"
 
     "CHANNEL_SECRET"       = data.google_secret_manager_secret_version.line_bot_channel_secret.secret_data
