@@ -59,7 +59,8 @@ jobs:
           path: ./front/dist
           if-no-files-found: error
           retention-days: 1
-        if: github.ref == 'refs/heads/main'
+        # for test
+        # if: github.ref == 'refs/heads/main'
 
   release-server:
     name: release server
@@ -150,12 +151,13 @@ jobs:
       - run: terraform apply -auto-approve -input=false
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
-  release-front:
-    name: release front
+  release-front-netlify:
+    name: release front (netlify)
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    if: github.ref == 'refs/heads/main'
+    # for test
+    # if: github.ref == 'refs/heads/main'
 
     needs:
       - check-server
@@ -177,3 +179,30 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         timeout-minutes: 5
+
+  release-front-cloudflare:
+    name: release front (cloudlfare)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # for test
+    # if: github.ref == 'refs/heads/main'
+
+    needs:
+      - check-server
+      - check-front
+
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: front-dist-${{ github.sha }}
+          path: ./dist
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@1
+        with:
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          projectName: haraiai
+          directory: ./dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

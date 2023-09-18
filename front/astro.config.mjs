@@ -11,7 +11,7 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://haraiai.netlify.app",
+  site: "https://haraiai.com",
   integrations: [
     partytown({
       // Adds dataLayer.push as a forwarding-event.
