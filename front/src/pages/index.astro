@@ -16,7 +16,7 @@ import { siteName } from "@/common.ts";
       <BeMyFriendButton />
     </section>
 
-    <section id="feature1" class="feature">
+    <section class="feature">
       <h2>LINE上で手軽に使える</h2>
       <p class="desc">
         はじめ方は簡単。<br />
@@ -27,7 +27,7 @@ import { siteName } from "@/common.ts";
       <img src="/img/features/f1.webp" alt="Feature1" />
     </section>
 
-    <section id="feature2" class="feature">
+    <section class="feature">
       <h2>支払い金額を自動で折半</h2>
       <p class="desc">
         いつもどおりのLINE感覚で<wbr />
@@ -38,7 +38,7 @@ import { siteName } from "@/common.ts";
       <img class="feature" src="/img/features/f2.webp" alt="Feature2" />
     </section>
 
-    <section id="feature3" class="feature">
+    <section class="feature">
       <h2>退屈な清算はもうしない</h2>
       <p class="desc">
         その清算作業、本当に必要ですか？<br />
@@ -50,56 +50,101 @@ import { siteName } from "@/common.ts";
       <img src="/img/features/f3.webp" alt="Feature3" />
     </section>
 
-    <div id="add-friend" class="white">
+    <div id="add-friend">
       <BeMyFriendButton />
+    </div>
+
+    <hr />
+
+    <div id="media">
+      <h2>メディアでも紹介されました！</h2>
+      <ul>
+        <li>
+          <a href="https://onodblog.com/app-cohabitation/" target="_blank">
+            <img src="https://onodblog.com/wp-content/uploads/2023/06/3727f1b24e165abf506c7b847f3fb19c.png" alt="【超便利】同棲カップルや夫婦におすすめなアプリ8選【同棲〜結婚まで】"/>
+
+            <span>【超便利】同棲カップルや夫婦におすすめなアプリ8選【同棲〜結婚まで】 / Tips Life</span>
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </Layout>
 
 <style lang="scss">
-  .container {
-    /*
-       Using !imporant is workaround for astro bug (probably).
-       Astro generates htmls that increrectly load styles in other pages.
-       e.g. top page (index.html) loads help page css(/_astro/help.9ec21e7e.cs).
+.container {
+  /*
+     Using !imporant is workaround for astro bug (probably).
+     Astro generates htmls that incorrectly load styles in other pages.
+     e.g. top page (index.html) loads help page css(/_astro/help.9ec21e7e.cs).
 
-       The document says that <style> CSS rules are automatically scoped by default, so it's weired.
-       I confirm this until the astro version v2.0.2.
-       https://docs.astro.build/en/guides/styling/#scoped-styles
-     */
-    max-width: 100% !important;
-    padding: 0 !important;
-    text-align: center;
+     The document says that <style> CSS rules are automatically scoped by default, so it's weired.
+     I confirm this until the astro version v2.0.2.
+     https://docs.astro.build/en/guides/styling/#scoped-styles
+   */
+  max-width: 100% !important;
+  padding: 0 !important;
+  text-align: center;
 
-    #add-friend {
-      margin: 40px 0 0px;
-      height: 40px;
+  section {
+    padding: 30px 30px;
+
+    &:nth-child(2n+1) {
+      background: #f8fafb;
     }
 
-    section {
-      padding: 30px 30px;
-
-      &:nth-child(2n + 1) {
-        background: #f8fafb;
+    &.feature {
+      img {
+        display: block;
+        width: 90%;
+        margin: 0 auto;
+        max-width: 350px;
       }
+    }
 
-      &.feature {
-        img {
-          display: block;
-          width: 90%;
-          margin: 0 auto;
-          max-width: 350px;
-        }
-      }
+    p.desc {
+      margin-bottom: 30px;
+      word-break: keep-all;
 
-      p.desc {
-        margin-bottom: 30px;
-        word-break: keep-all;
-
-        ul {
-          text-align: left;
-        }
+      ul {
+        text-align: left;
       }
     }
   }
+
+  #add-friend {
+    margin: 40px 0 0px;
+    height: 40px;
+  }
+
+  #media {
+    padding: 30px 30px;
+    margin-top: 30px;
+    box-sizing: border-box;
+
+    img {
+      display: block;
+      width: 90%;
+      margin: 0 auto;
+      max-width: 350px;
+    }
+  }
+
+  ul {
+    padding: 20px 0;
+    li {
+      list-style:none
+    }
+  }
+
+  hr {
+    margin-top: 80px;
+    width: 90%;
+    max-width: 720px;
+    border: none;
+    height: 8px;
+    background-image: repeating-linear-gradient(45deg, #ccc 0, #ccc 1px, transparent 0, transparent 50%);
+    background-size: 8px 8px;
+  }
+}
 </style>
