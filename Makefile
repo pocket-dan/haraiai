@@ -18,7 +18,7 @@ prepare:
 		&& go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest \
 		&& go install github.com/google/wire/cmd/wire@latest
 
-generate:
+generate: clean
 	cd pkg \
 		&& GOFLAGS=-mod=mod go generate ./...
 

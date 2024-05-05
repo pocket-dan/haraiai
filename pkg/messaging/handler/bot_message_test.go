@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"go.uber.org/mock/gomock"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/raahii/haraiai/pkg/store"
 	"github.com/raahii/haraiai/pkg/timeutil"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
 func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
@@ -24,6 +24,12 @@ func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
 		store.GROUP_CREATED,
 		[]*store.User{},
 	)
+
+	s.
+		EXPECT().
+		GetGroup(group.ID).
+		Return(group, nil).
+		Times(1)
 
 	// Expect to reply text message.
 	expectedMessage := "太郎さんだね！👍"
@@ -56,7 +62,8 @@ func TestHandleTextMessage_addNewMember_firstPerson_success(t *testing.T) {
 
 		// Test handler.handleTextMessage call.
 	event := newTestMessageEvent(REPLY_TOKEN, linebot.EventSourceTypeGroup, GROUP_ID, SENDER_ID)
-	err := target.addNewMember(event, group, "太郎だよ")
+	message := newTextMessage("太郎だよ")
+	err := target.handleTextMessage(event, message)
 
 	assert.Nil(t, err)
 }
@@ -72,6 +79,11 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 		store.GROUP_CREATED,
 		[]*store.User{newTaroUser(0)},
 	)
+	s.
+		EXPECT().
+		GetGroup(group.ID).
+		Return(group, nil).
+		Times(1)
 
 	// Expect to reply text message.
 	expectedMessage := "花子さんだね！👍"
@@ -104,9 +116,10 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 			assert.Equal(t, int64(0), newUser.InitialPayAmount)
 		})
 
-		// Test handler.handleTextMessage call.
+	// Test handler.handleTextMessage call.
 	event := newTestMessageEvent(REPLY_TOKEN, linebot.EventSourceTypeGroup, GROUP_ID, SENDER_ID)
-	err := target.addNewMember(event, group, "花子だよ")
+	message := newTextMessage("花子だよ〜！")
+	err := target.handleTextMessage(event, message)
 
 	assert.Nil(t, err)
 }
