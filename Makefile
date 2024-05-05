@@ -11,6 +11,7 @@ clean:
 	rm -rf $(FUNC_BOT)/vendor
 	rm -rf $(FUNC_BOT)/messaging
 	rm -rf pkg/mock
+	rm -rf pkg/wire/wire_gen.go
 
 prepare:
 	cd pkg \
@@ -18,14 +19,15 @@ prepare:
 		&& go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest \
 		&& go install github.com/google/wire/cmd/wire@latest
 
-generate: clean
+generate:
 	cd pkg \
-		&& GOFLAGS=-mod=mod go generate ./...
+		&& go generate ./... \
+		&& cd wire && wire gen
 
-test: generate
+test: clean generate
 	cd pkg && PHASE=test gotest -v ./... $(ARGS)
 
-ci-test: prepare build
+ci-test: build
 	cd pkg && PHASE=test go test -json ./... | tee /tmp/gotest.log | gotestfmt
 
 develop:

@@ -241,7 +241,9 @@ func (bh *BotHandlerImpl) extractMemberName(text string) string {
 		return ""
 	}
 
-	return strings.TrimSuffix(trimmed, JOIN_MESSAGE_SUFFIX)
+	name := strings.TrimSuffix(trimmed, JOIN_MESSAGE_SUFFIX)
+	name = strings.Trim(name, " 　")
+	return name
 }
 
 func (bh *BotHandlerImpl) addNewMember(event *linebot.Event, group *store.Group, memberName string) error {

@@ -118,7 +118,7 @@ func TestHandleTextMessage_addNewMember_secondPerson_success(t *testing.T) {
 
 	// Test handler.handleTextMessage call.
 	event := newTestMessageEvent(REPLY_TOKEN, linebot.EventSourceTypeGroup, GROUP_ID, SENDER_ID)
-	message := newTextMessage("花子だよ〜！")
+	message := newTextMessage("花子　だよ〜！")
 	err := target.handleTextMessage(event, message)
 
 	assert.Nil(t, err)
