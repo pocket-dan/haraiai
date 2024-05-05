@@ -129,10 +129,12 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 	if group.Status == store.GROUP_CREATED {
 		// This group is under setting up as it doesn't have sufficient members.
 		// Handle messages to join to group only.
-		if strings.HasSuffix(message.Text, JOIN_MESSAGE_SUFFIX) {
-			if err := bh.addNewMember(event, group, message.Text); err != nil {
+		memberName := bh.extractMemberName(message.Text)
+		if memberName != "" {
+			if err := bh.addNewMember(event, group, memberName); err != nil {
 				return err
 			}
+
 			return nil
 		}
 
@@ -232,12 +234,21 @@ func (bh *BotHandlerImpl) handleTextMessage(event *linebot.Event, message *lineb
 	return nil
 }
 
-func (bh *BotHandlerImpl) addNewMember(event *linebot.Event, group *store.Group, text string) error {
+func (bh *BotHandlerImpl) extractMemberName(text string) string {
+	trimmed := strings.Split(text, "\n")[0]
+	trimmed = strings.TrimRight(trimmed, "ー〜！!")
+	if !strings.HasSuffix(trimmed, JOIN_MESSAGE_SUFFIX) {
+		return ""
+	}
+
+	name := strings.TrimSuffix(trimmed, JOIN_MESSAGE_SUFFIX)
+	name = strings.Trim(name, " 　")
+	return name
+}
+
+func (bh *BotHandlerImpl) addNewMember(event *linebot.Event, group *store.Group, memberName string) error {
 	// FIXME: Need to consider multiple users are added to the group simultaneously.
 	// FIXME: Need to consider nickname (user) validation.
-
-	memberName := strings.TrimSuffix(text, JOIN_MESSAGE_SUFFIX)
-	memberName = strings.Trim(memberName, " \n")
 
 	senderID := event.Source.UserID
 	group.Members[senderID] = store.NewUser(senderID, memberName, 0)
