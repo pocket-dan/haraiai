@@ -12,26 +12,27 @@ jobs:
   check-server:
     name: check server
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     env:
       PACKAGE_BASE_PATH: "${{ github.workspace }}/pkg"
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version-file: ./pkg/go.mod
           cache-dependency-path: ./pkg/go.sum
           cache: true
 
-      - name: Test code
+      - name: Run unit tests
         run: make ci-test
 
       - name: Upload test log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-log
@@ -41,19 +42,26 @@ jobs:
   check-front:
     name: check front
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     defaults:
       run:
         working-directory: front
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 18.x
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/upload-artifact@v3
+          node-version: 21.7.0
+
+      - name: Build
+        run: npm ci && npm run build
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
         with:
           name: front-dist-${{ github.sha }}
           path: ./front/dist
@@ -81,10 +89,12 @@ jobs:
         working-directory: deploy
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
       # Go
-      - uses: actions/setup-go@v3
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
           go-version-file: ./pkg/go.mod
           cache-dependency-path: ./pkg/go.sum
@@ -94,15 +104,15 @@ jobs:
         working-directory: .
 
       # GCP
-      - id: "auth"
-        uses: "google-github-actions/auth@v0"
+      - uses: google-github-actions/auth@v0
+        id: auth
         with:
-          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
-      - uses: "google-github-actions/setup-gcloud@v0"
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+      - uses: google-github-actions/setup-gcloud@v0
         with:
           project_id: haraiai
           export_default_credentials: true
-      - run: "gcloud info"
+      - run: gcloud info
 
       # Terraform
       - uses: hashicorp/setup-terraform@v2
@@ -162,7 +172,7 @@ jobs:
       - check-front
 
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: front-dist-${{ github.sha }}
           path: ./dist
