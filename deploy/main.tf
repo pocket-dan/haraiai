@@ -28,14 +28,6 @@ data "google_secret_manager_secret_version" "line_bot_channel_access_token" {
   secret = "lineBotChannelAccessToken"
 }
 
-# Artifact Registry
-resource "google_artifact_registry_repository" "repo" {
-  provider = google
-
-  repository_id = "haraiai"
-  format = "DOCKER"
-}
-
 # Cloud Functions for LINE Bot
 data "archive_file" "bot" {
   type        = "zip"
@@ -56,7 +48,6 @@ resource "google_cloudfunctions_function" "bot_webhook" {
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.bot.name
-  docker_repository = google_artifact_registry_repository.repo.id
 
   trigger_http = true
   entry_point  = "HandleWebhook"
