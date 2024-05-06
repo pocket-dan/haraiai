@@ -47,7 +47,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 21.7.0
+          node-version: 21
 
       - name: Build
         run: npm ci && npm run build
@@ -110,49 +110,24 @@ jobs:
       - run: gcloud info
 
       # Terraform
-      - uses: hashicorp/setup-terraform@v3
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-      - id: init
-        run: terraform init
-      - id: validate
+      - name: Terraform init
+        id: init
+        run: terraform init -upgrade
+      - name: Terraform validate
+        id: validate
         run: terraform validate -no-color
-      - id: plan
+      - name: Terraform plan
+        id: plan
         if: github.event_name == 'pull_request'
         run: terraform plan -no-color -input=false
         continue-on-error: true
-      - uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
-        env:
-          PLAN: "${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-
-            <details><summary>Show Plan</summary>
-
-            \`\`\`terraform\n
-            ${process.env.PLAN}
-            \`\`\`
-
-            </details>
-
-            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
-      - run: exit 1
-        if: steps.plan.outcome == 'failure'
-
-      - run: terraform apply -auto-approve -input=false
+      - name: Terraform apply
+        run: terraform apply -auto-approve -input=false
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
   release-front:
