@@ -128,7 +128,7 @@ jobs:
         continue-on-error: true
       - name: Terraform apply
         run: terraform apply -auto-approve -input=false
-        # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
   release-front:
     name: release front
