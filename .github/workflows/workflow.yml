@@ -109,7 +109,7 @@ jobs:
         id: auth
         with:
           project_id: haraiai
-          workload_identity_provider: projects/900543910035/locations/global/workloadIdentityPools/github-actions/providers/pocket-dan/haraiai
+          workload_identity_provider: projects/900543910035/locations/global/workloadIdentityPools/github-actions/providers/github
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
