@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    # needs: [check-server, check-front]
+    needs: [check-server, check-front]
 
     permissions:
       contents: read
@@ -117,58 +117,58 @@ jobs:
 
       - run: gcloud info
 
-      # # Terraform
-      # - uses: hashicorp/setup-terraform@v2
-      #   with:
-      #     terraform_version: ${{ env.TF_VERSION }}
-      #     cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-      # - id: init
-      #   run: terraform init
-      # - id: validate
-      #   run: terraform validate -no-color
-      # - id: plan
-      #   if: github.event_name == 'pull_request'
-      #   run: terraform plan -no-color -input=false
-      #   continue-on-error: true
-      # - uses: actions/github-script@v6
-      #   if: github.event_name == 'pull_request'
-      #   env:
-      #     PLAN: "${{ steps.plan.outputs.stdout }}"
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-      #       #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-      #       #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+      # Terraform
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - id: init
+        run: terraform init
+      - id: validate
+        run: terraform validate -no-color
+      - id: plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -no-color -input=false
+        continue-on-error: true
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
 
-      #       <details><summary>Show Plan</summary>
+            <details><summary>Show Plan</summary>
 
-      #       \`\`\`terraform\n
-      #       ${process.env.PLAN}
-      #       \`\`\`
+            \`\`\`terraform\n
+            ${process.env.PLAN}
+            \`\`\`
 
-      #       </details>
+            </details>
 
-      #       *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-      #       github.rest.issues.createComment({
-      #         issue_number: context.issue.number,
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         body: output
-      #       })
-      # - run: exit 1
-      #   if: steps.plan.outcome == 'failure'
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      - run: exit 1
+        if: steps.plan.outcome == 'failure'
 
-      # - run: terraform apply -auto-approve -input=false
-      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - run: terraform apply -auto-approve -input=false
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
   release-front:
     name: release front
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    if: github.ref == 'refs/heads/foo'
+    if: github.ref == 'refs/heads/main'
     needs: [check-server, check-front]
 
     steps:
