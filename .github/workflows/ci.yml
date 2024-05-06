@@ -115,7 +115,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
       - id: init
-        run: terraform init
+        run: terraform init -upgrade
       - id: validate
         run: terraform validate -no-color
       - id: plan
