@@ -9,6 +9,33 @@ on:
       - main
 
 jobs:
+  has-server-changes:
+    name: has server changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    permissions:
+      contents: read
+      pull-requests: read
+
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'pkg/**'
+              - 'func/**'
+              - 'deploy/**'
+              - 'Makefile'
+              - '.github/workflows/ci.yml'
+
   check-server:
     name: check server
     runs-on: ubuntu-latest
@@ -66,7 +93,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    needs: [check-server, check-front]
+    if: needs.has-server-changes.outputs.server == 'true'
+    needs: [has-server-changes, check-server, check-front]
 
     permissions:
       contents: read
