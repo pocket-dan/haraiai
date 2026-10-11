@@ -166,6 +166,10 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: [check-server, check-front]
 
+    permissions:
+      contents: read
+      deployments: write
+
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -173,10 +177,9 @@ jobs:
           path: ./dist
 
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@1
+        uses: cloudflare/wrangler-action@v4
         with:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          projectName: haraiai
-          directory: ./dist
+          command: pages deploy ./dist --project-name=haraiai --branch=${{ github.head_ref || github.ref_name }} --commit-hash=${{ github.event.pull_request.head.sha || github.sha }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
