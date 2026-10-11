@@ -86,7 +86,6 @@ jobs:
           path: ./front/dist
           if-no-files-found: error
           retention-days: 1
-        if: github.ref == 'refs/heads/main'
 
   release-server:
     name: release server
@@ -163,7 +162,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    if: github.ref == 'refs/heads/main'
     needs: [check-server, check-front]
 
     permissions:
