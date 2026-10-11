@@ -15,7 +15,7 @@ clean:
 
 prepare:
 	cd pkg \
-		&& go install go.uber.org/mock/mockgen@latest \
+		&& go install go.uber.org/mock/mockgen@v0.2.0 \
 		&& go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest \
 		&& go install github.com/google/wire/cmd/wire@latest
 
